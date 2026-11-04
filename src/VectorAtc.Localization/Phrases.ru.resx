@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="RadioCheckReply.Icao" xml:space="preserve"><value>{callsign}, слышимость пять</value></data>
+  <data name="RadioCheckReply.Us" xml:space="preserve"><value>{callsign}, слышу вас хорошо</value></data>
+  <data name="TaxiClearance.Icao" xml:space="preserve"><value>{callsign}, рулите на предварительный старт полосы {runway} по {route}</value></data>
+  <data name="TaxiClearance.Us" xml:space="preserve"><value>{callsign}, полоса {runway}, рулите по {route}</value></data>
+  <data name="PushbackApproved.Icao" xml:space="preserve"><value>{callsign}, буксировка разрешена</value></data>
+  <data name="PushbackApproved.Us" xml:space="preserve"><value>{callsign}, буксировка по вашему усмотрению</value></data>
+  <data name="SayAgainRequest.Icao" xml:space="preserve"><value>{callsign}, повторите</value></data>
+  <data name="SayAgainRequest.Us" xml:space="preserve"><value>{callsign}, повторите</value></data>
+</root>

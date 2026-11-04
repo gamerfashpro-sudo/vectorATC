@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="RadioCheckReply.Icao" xml:space="preserve"><value>{callsign}, readability five</value></data>
+  <data name="RadioCheckReply.Us" xml:space="preserve"><value>{callsign}, loud and clear</value></data>
+  <data name="TaxiClearance.Icao" xml:space="preserve"><value>{callsign}, taxi to holding point runway {runway} via {route}</value></data>
+  <data name="TaxiClearance.Us" xml:space="preserve"><value>{callsign}, runway {runway}, taxi via {route}</value></data>
+  <data name="PushbackApproved.Icao" xml:space="preserve"><value>{callsign}, pushback approved</value></data>
+  <data name="PushbackApproved.Us" xml:space="preserve"><value>{callsign}, pushback at your discretion</value></data>
+  <data name="SayAgainRequest.Icao" xml:space="preserve"><value>{callsign}, say again</value></data>
+  <data name="SayAgainRequest.Us" xml:space="preserve"><value>{callsign}, say again</value></data>
+</root>
