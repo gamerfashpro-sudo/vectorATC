@@ -12,4 +12,28 @@
   <data name="Log.ControllerPrefix" xml:space="preserve"><value>Диспетчер</value></data>
   <data name="Settings.Language" xml:space="preserve"><value>Язык</value></data>
   <data name="Settings.Phraseology" xml:space="preserve"><value>Фразеология</value></data>
+  <data name="Ui.Connect" xml:space="preserve"><value>Подключить</value></data>
+  <data name="Ui.Disconnect" xml:space="preserve"><value>Отключить</value></data>
+  <data name="Ui.NextFrame" xml:space="preserve"><value>Следующий кадр симулятора (демо)</value></data>
+  <data name="Ui.Send" xml:space="preserve"><value>Отправить</value></data>
+  <data name="Ui.Callsign" xml:space="preserve"><value>Позывной</value></data>
+  <data name="Ui.InputHint" xml:space="preserve"><value>Введите сообщение с позывным, например N172SP запрашиваю руление</value></data>
+  <data name="Ui.Log" xml:space="preserve"><value>Журнал радиообмена</value></data>
+  <data name="Ui.Status" xml:space="preserve"><value>Симулятор</value></data>
+  <data name="Ui.Phase" xml:space="preserve"><value>Диспетчер</value></data>
+  <data name="Ui.State" xml:space="preserve"><value>Состояние рейса</value></data>
+  <data name="Phase.Ground" xml:space="preserve"><value>Земля</value></data>
+  <data name="Phase.Tower" xml:space="preserve"><value>Вышка</value></data>
+  <data name="State.Parked" xml:space="preserve"><value>На стоянке</value></data>
+  <data name="State.PushbackApproved" xml:space="preserve"><value>Буксировка разрешена</value></data>
+  <data name="State.TaxiClearanceIssued" xml:space="preserve"><value>Выдан клиренс на руление</value></data>
+  <data name="State.Taxiing" xml:space="preserve"><value>Руление</value></data>
+  <data name="State.TowerContacted" xml:space="preserve"><value>На связи с вышкой</value></data>
+  <data name="State.LinedUp" xml:space="preserve"><value>На полосе</value></data>
+  <data name="Quick.Taxi" xml:space="preserve"><value>Запрашиваю руление</value></data>
+  <data name="Quick.Pushback" xml:space="preserve"><value>Запрашиваю буксировку</value></data>
+  <data name="Quick.RadioCheck" xml:space="preserve"><value>Проверка связи</value></data>
+  <data name="Quick.SayAgain" xml:space="preserve"><value>Повторите</value></data>
+  <data name="Quick.ReadyDeparture" xml:space="preserve"><value>Готов к взлёту</value></data>
+  <data name="Log.ViolationPrefix" xml:space="preserve"><value>Замечание</value></data>
 </root>

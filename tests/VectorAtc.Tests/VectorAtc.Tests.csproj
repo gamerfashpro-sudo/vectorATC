@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\src\VectorAtc.Core\VectorAtc.Core.csproj" />
     <ProjectReference Include="..\..\src\VectorAtc.SimLink\VectorAtc.SimLink.csproj" />
     <ProjectReference Include="..\..\src\VectorAtc.Localization\VectorAtc.Localization.csproj" />
+    <ProjectReference Include="..\..\src\VectorAtc.ViewModels\VectorAtc.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

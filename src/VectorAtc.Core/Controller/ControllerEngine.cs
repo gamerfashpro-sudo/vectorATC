@@ -30,8 +30,7 @@ public sealed class ControllerEngine
 {
     private readonly IPhraseBook _phrases;
     private readonly AirportInfo _airport;
-    private readonly PhraseStyle _style;
-    private readonly CultureInfo _culture;
+    private CultureInfo _culture;
     private readonly ExchangeLog _log;
     private readonly RequestParser _parser = new();
     private IReadOnlyList<string> _lastReply = Array.Empty<string>();
@@ -40,9 +39,19 @@ public sealed class ControllerEngine
     {
         _phrases = phrases ?? throw new ArgumentNullException(nameof(phrases));
         _airport = airport ?? throw new ArgumentNullException(nameof(airport));
-        _style = style;
+        Style = style;
         _culture = culture ?? throw new ArgumentNullException(nameof(culture));
         _log = log ?? throw new ArgumentNullException(nameof(log));
+    }
+
+    /// <summary>Стиль фразеологии. Можно менять в ходе сессии: действует на следующие передачи.</summary>
+    public PhraseStyle Style { get; set; }
+
+    /// <summary>Язык ответов. Можно менять в ходе сессии: действует на следующие передачи.</summary>
+    public CultureInfo Culture
+    {
+        get => _culture;
+        set => _culture = value ?? throw new ArgumentNullException(nameof(value));
     }
 
     public FlightState State { get; private set; } = FlightState.Parked;
@@ -160,7 +169,7 @@ public sealed class ControllerEngine
             ["frequency"] = (_airport.TowerFrequencyKhz / 1000.0).ToString("0.0##", CultureInfo.InvariantCulture),
         };
 
-        var text = _phrases.Render(id, _style, _culture, values);
+        var text = _phrases.Render(id, Style, _culture, values);
         _log.Add(LogSource.Controller, text);
         return text;
     }

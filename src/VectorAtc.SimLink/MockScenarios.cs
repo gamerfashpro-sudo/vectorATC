@@ -1,3 +1,4 @@
+using VectorAtc.Core.Controller;
 using VectorAtc.Core.Models;
 
 namespace VectorAtc.SimLink;
@@ -7,6 +8,10 @@ public static class MockScenarios
 {
     private const int Ground = 121_900; // кГц
     private const int Tower = 118_100;  // кГц
+
+    /// <summary>Тестовый аэропорт: точка ожидания совпадает с последним кадром <see cref="ParkedToHoldShort"/>.</summary>
+    public static AirportInfo TestAirport { get; } = new(
+        "TEST", "27", new[] { "A", "B" }, new GeoPoint(55.0010, 37.0018), 25, Tower);
 
     /// <summary>Стоянка → руление → остановка у ВПП. 5 кадров.</summary>
     public static IReadOnlyList<AircraftState> ParkedToHoldShort() => new[]

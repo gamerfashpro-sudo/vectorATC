@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <AssemblyName>VectorATC</AssemblyName>
+    <RootNamespace>VectorAtc.App</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VectorAtc.Core\VectorAtc.Core.csproj" />
+    <ProjectReference Include="..\VectorAtc.SimLink\VectorAtc.SimLink.csproj" />
+    <ProjectReference Include="..\VectorAtc.Localization\VectorAtc.Localization.csproj" />
+    <ProjectReference Include="..\VectorAtc.ViewModels\VectorAtc.ViewModels.csproj" />
+  </ItemGroup>
+
+</Project>

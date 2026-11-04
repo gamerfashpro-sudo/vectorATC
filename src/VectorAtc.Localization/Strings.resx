@@ -12,4 +12,28 @@
   <data name="Log.ControllerPrefix" xml:space="preserve"><value>ATC</value></data>
   <data name="Settings.Language" xml:space="preserve"><value>Language</value></data>
   <data name="Settings.Phraseology" xml:space="preserve"><value>Phraseology</value></data>
+  <data name="Ui.Connect" xml:space="preserve"><value>Connect</value></data>
+  <data name="Ui.Disconnect" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="Ui.NextFrame" xml:space="preserve"><value>Next simulator frame (demo)</value></data>
+  <data name="Ui.Send" xml:space="preserve"><value>Send</value></data>
+  <data name="Ui.Callsign" xml:space="preserve"><value>Callsign</value></data>
+  <data name="Ui.InputHint" xml:space="preserve"><value>Type a message with your callsign, e.g. N172SP request taxi</value></data>
+  <data name="Ui.Log" xml:space="preserve"><value>Radio log</value></data>
+  <data name="Ui.Status" xml:space="preserve"><value>Simulator</value></data>
+  <data name="Ui.Phase" xml:space="preserve"><value>Controller</value></data>
+  <data name="Ui.State" xml:space="preserve"><value>Flight state</value></data>
+  <data name="Phase.Ground" xml:space="preserve"><value>Ground</value></data>
+  <data name="Phase.Tower" xml:space="preserve"><value>Tower</value></data>
+  <data name="State.Parked" xml:space="preserve"><value>Parked</value></data>
+  <data name="State.PushbackApproved" xml:space="preserve"><value>Pushback approved</value></data>
+  <data name="State.TaxiClearanceIssued" xml:space="preserve"><value>Taxi clearance issued</value></data>
+  <data name="State.Taxiing" xml:space="preserve"><value>Taxiing</value></data>
+  <data name="State.TowerContacted" xml:space="preserve"><value>Tower contacted</value></data>
+  <data name="State.LinedUp" xml:space="preserve"><value>Lined up</value></data>
+  <data name="Quick.Taxi" xml:space="preserve"><value>Request taxi</value></data>
+  <data name="Quick.Pushback" xml:space="preserve"><value>Request pushback</value></data>
+  <data name="Quick.RadioCheck" xml:space="preserve"><value>Radio check</value></data>
+  <data name="Quick.SayAgain" xml:space="preserve"><value>Say again</value></data>
+  <data name="Quick.ReadyDeparture" xml:space="preserve"><value>Ready for departure</value></data>
+  <data name="Log.ViolationPrefix" xml:space="preserve"><value>Note</value></data>
 </root>
