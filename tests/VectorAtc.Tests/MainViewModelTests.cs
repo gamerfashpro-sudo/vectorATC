@@ -56,7 +56,7 @@ public class MainViewModelTests
         f.Type("   ");
         f.Vm.SendCommand.Execute(null);
 
-        Assert.Equal(0, f.Vm.Lines.Count);
+        Assert.Empty(f.Vm.Lines);
         f.Type("N172SP radio check");
         Assert.True(f.Vm.SendCommand.CanExecute(null));
     }
@@ -82,8 +82,8 @@ public class MainViewModelTests
         f.Type("N172SP request taxi");
         f.Vm.SendCommand.Execute(null);
 
-        Assert.True(changed.Contains("StateText"));
-        Assert.True(changed.Contains("PhaseText"));
+        Assert.Contains("StateText", changed);
+        Assert.Contains("PhaseText", changed);
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public class MainViewModelTests
         Assert.Equal("Отправить", f.Vm.LabelSend);
         Assert.Equal("Запрашиваю руление", f.Vm.QuickActions[0].Label);
         Assert.Equal("Нет подключения к симулятору", f.Vm.StatusText);
-        Assert.True(changed.Contains(""));
+        Assert.Contains("", changed);
 
         f.Type("N172SP запрашиваю руление");
         f.Vm.SendCommand.Execute(null);

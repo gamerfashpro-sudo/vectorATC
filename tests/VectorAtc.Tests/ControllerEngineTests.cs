@@ -126,7 +126,7 @@ public class ControllerEngineTests
             Join(reply));
         Assert.Equal(FlightState.TaxiClearanceIssued, engine.State);
         var violations = log.Entries.Where(e => e.Source == LogSource.Violation).ToList();
-        Assert.Equal(1, violations.Count);
+        Assert.Single(violations);
         Assert.Equal("Readback error: Runway", violations[0].Text);
     }
 
