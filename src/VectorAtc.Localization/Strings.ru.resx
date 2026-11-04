@@ -36,4 +36,5 @@
   <data name="Quick.SayAgain" xml:space="preserve"><value>Повторите</value></data>
   <data name="Quick.ReadyDeparture" xml:space="preserve"><value>Готов к взлёту</value></data>
   <data name="Log.ViolationPrefix" xml:space="preserve"><value>Замечание</value></data>
+  <data name="Sim.DemoConnected" xml:space="preserve"><value>Подключено (демо-режим)</value></data>
 </root>

@@ -1,0 +1,55 @@
+name: Build
+
+on:
+  push:
+    branches: [main, stage-1a]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # Настоящий xunit и сборка всего решения (включая WPF) на Windows.
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Test
+        run: dotnet test VectorAtc.sln -c Release --logger "trx;LogFileName=test-results.trx"
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/test-results.trx'
+
+  # Один .exe без установки: .NET внутри файла. Не зависит от job test, чтобы файл можно было получить даже при красных тестах.
+  exe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish single-file exe
+        run: dotnet publish src/VectorAtc.App -p:PublishProfile=SingleExe
+      - name: Show result
+        shell: pwsh
+        run: Get-Item src/VectorAtc.App/bin/publish/VectorATC.exe | Select-Object Name, Length
+      - name: Upload exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: VectorATC-exe
+          path: src/VectorAtc.App/bin/publish/VectorATC.exe
+          if-no-files-found: error
+      - name: Attach exe to the release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: src/VectorAtc.App/bin/publish/VectorATC.exe
+          prerelease: true

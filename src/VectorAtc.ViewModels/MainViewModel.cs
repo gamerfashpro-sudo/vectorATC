@@ -112,7 +112,7 @@ public sealed class MainViewModel : ObservableObject
     // Состояние
     public string StatusText => _loc[_sim.ConnectionState switch
     {
-        SimConnectionState.Connected => "Sim.Connected",
+        SimConnectionState.Connected => _advanceDemoFrame is null ? "Sim.Connected" : "Sim.DemoConnected",
         SimConnectionState.Connecting => "Sim.Connecting",
         _ => "Sim.Disconnected",
     }];

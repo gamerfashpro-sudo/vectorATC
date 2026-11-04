@@ -162,7 +162,7 @@ public class MainViewModelTests
 
         f.Vm.ConnectCommand.Execute(null);
 
-        Assert.Equal("Connected to simulator", f.Vm.StatusText);
+        Assert.Equal("Connected (demo mode)", f.Vm.StatusText);
         Assert.Equal("Disconnect", f.Vm.ConnectButtonText);
         Assert.True(f.Vm.NextFrameCommand.CanExecute(null));
 
@@ -224,5 +224,29 @@ public class MainViewModelTests
 
         engine.Culture = CultureInfo.GetCultureInfo("ru");
         Assert.Equal("N172SP, слышу вас хорошо", string.Join("", engine.HandlePilotMessage("N172SP radio check")));
+    }
+
+    [Fact]
+    public void Demo_status_is_localized_and_not_shown_as_a_real_simulator_connection()
+    {
+        var f = new Fixture();
+        f.Vm.ToggleLanguageCommand.Execute(null);
+        f.Vm.ConnectCommand.Execute(null);
+
+        Assert.Equal("Подключено (демо-режим)", f.Vm.StatusText);
+    }
+
+    [Fact]
+    public void Status_without_demo_source_says_connected_to_simulator()
+    {
+        var loc = new LocalizationService();
+        var log = new ExchangeLog();
+        var sim = new MockSimDataSource();
+        var engine = new ControllerEngine(new PhraseBook(), MockScenarios.TestAirport, PhraseStyle.Icao, loc.Culture, log);
+        var vm = new MainViewModel(loc, engine, log, sim);
+
+        vm.ConnectCommand.Execute(null);
+
+        Assert.Equal("Connected to simulator", vm.StatusText);
     }
 }
