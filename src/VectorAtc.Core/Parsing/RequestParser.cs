@@ -16,49 +16,36 @@ public sealed class RequestParser
     public PilotRequest Parse(string text)
     {
         ArgumentNullException.ThrowIfNull(text);
-        var tokens = Tokenize(text);
+        var tokens = Tokenizer.Tokenize(text);
         return new PilotRequest(ExtractCallsign(tokens), ClassifyIntent(tokens), text);
     }
 
-    private static string[] Tokenize(string text)
-    {
-        var sb = new StringBuilder(text.Length);
-        foreach (var ch in text.ToLowerInvariant())
-            sb.Append(char.IsLetterOrDigit(ch) ? (ch == 'ё' ? 'е' : ch) : ' ');
+    private static string? ExtractCallsign(string[] tokens) =>
+        CallsignRuns(tokens).FirstOrDefault(run =>
+            run.Length >= 3 && run.Any(char.IsLetter) && run.Any(char.IsDigit));
 
-        // «x-ray» / «икс-рей» после замены дефиса распались на два слова
-        var normalized = " " + string.Join(' ', sb.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries)) + " ";
-        normalized = normalized.Replace(" x ray ", " xray ").Replace(" икс рей ", " иксрей ");
-        return normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-    }
-
-    private static string? ExtractCallsign(string[] tokens)
+    /// <summary>Все серии подряд идущих слов/цифр, из которых может состоять позывной.</summary>
+    internal static IReadOnlyList<string> CallsignRuns(string[] tokens)
     {
+        var runs = new List<string>();
         var run = new StringBuilder();
 
-        string? Flush()
+        void Flush()
         {
-            var candidate = run.ToString();
+            if (run.Length == 0) return;
+            runs.Add(run.ToString());
             run.Clear();
-            return candidate.Length >= 3 && candidate.Any(char.IsLetter) && candidate.Any(char.IsDigit)
-                ? candidate
-                : null;
         }
 
         foreach (var token in tokens)
         {
             var piece = CallsignPiece(token);
-            if (piece is not null)
-            {
-                run.Append(piece);
-                continue;
-            }
-
-            var found = Flush();
-            if (found is not null) return found;
+            if (piece is not null) run.Append(piece);
+            else Flush();
         }
 
-        return Flush();
+        Flush();
+        return runs;
     }
 
     private static string? CallsignPiece(string token)

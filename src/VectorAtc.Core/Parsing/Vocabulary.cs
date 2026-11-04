@@ -44,4 +44,14 @@ internal static class Vocabulary
             "готов* к взлет*", "готов* к вылет*",
         }),
     };
+
+    private static readonly string[] Nato =
+    {
+        "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliett", "Kilo", "Lima", "Mike",
+        "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "Xray", "Yankee", "Zulu",
+    };
+
+    /// <summary>Название рулёжной дорожки для передачи: «A» → «Alpha»; прочие имена возвращаются как есть.</summary>
+    public static string LetterName(string taxiway) =>
+        taxiway.Length == 1 && char.IsAsciiLetter(taxiway[0]) ? Nato[char.ToUpperInvariant(taxiway[0]) - 'A'] : taxiway;
 }

@@ -15,7 +15,7 @@ public class PhraseBookTests
 
     private static Dictionary<string, string> Values() => new()
     {
-        ["callsign"] = "N172SP", ["runway"] = "27", ["route"] = "Alpha, Bravo",
+        ["callsign"] = "N172SP", ["runway"] = "27", ["route"] = "Alpha, Bravo", ["frequency"] = "118.1",
     };
 
     [Fact]

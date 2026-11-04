@@ -12,4 +12,18 @@
   <data name="PushbackApproved.Us" xml:space="preserve"><value>{callsign}, буксировка по вашему усмотрению</value></data>
   <data name="SayAgainRequest.Icao" xml:space="preserve"><value>{callsign}, повторите</value></data>
   <data name="SayAgainRequest.Us" xml:space="preserve"><value>{callsign}, повторите</value></data>
+  <data name="ReadbackCorrect.Icao" xml:space="preserve"><value>{callsign}, повторили правильно</value></data>
+  <data name="ReadbackCorrect.Us" xml:space="preserve"><value>{callsign}, повторили правильно</value></data>
+  <data name="ReadbackIncorrect.Icao" xml:space="preserve"><value>{callsign}, неверно, повторяю</value></data>
+  <data name="ReadbackIncorrect.Us" xml:space="preserve"><value>{callsign}, неверно, повторяю</value></data>
+  <data name="ContactTower.Icao" xml:space="preserve"><value>{callsign}, свяжитесь с вышкой {frequency}</value></data>
+  <data name="ContactTower.Us" xml:space="preserve"><value>{callsign}, свяжитесь с вышкой на {frequency}</value></data>
+  <data name="LineUpAndWait.Icao" xml:space="preserve"><value>{callsign}, занимайте полосу {runway} и ожидайте</value></data>
+  <data name="LineUpAndWait.Us" xml:space="preserve"><value>{callsign}, полоса {runway}, занимайте и ожидайте</value></data>
+  <data name="UnknownStation.Icao" xml:space="preserve"><value>Вызывающая станция, повторите</value></data>
+  <data name="UnknownStation.Us" xml:space="preserve"><value>Вызывающая станция, повторите</value></data>
+  <data name="Unable.Icao" xml:space="preserve"><value>{callsign}, выполнить не могу</value></data>
+  <data name="Unable.Us" xml:space="preserve"><value>{callsign}, выполнить не могу</value></data>
+  <data name="EmergencyAcknowledge.Icao" xml:space="preserve"><value>{callsign}, принял бедствие, сообщите намерения</value></data>
+  <data name="EmergencyAcknowledge.Us" xml:space="preserve"><value>{callsign}, принял бедствие, сообщите намерения</value></data>
 </root>

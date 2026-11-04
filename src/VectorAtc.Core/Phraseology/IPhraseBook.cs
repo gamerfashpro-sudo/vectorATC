@@ -14,10 +14,17 @@ public enum PhraseId
     RadioCheckReply,
     TaxiClearance,
     PushbackApproved,
-    SayAgainRequest
+    SayAgainRequest,
+    ReadbackCorrect,
+    ReadbackIncorrect,
+    ContactTower,
+    LineUpAndWait,
+    UnknownStation,
+    Unable,
+    EmergencyAcknowledge
 }
 
-/// <summary>Шаблоны ответов диспетчера. Подстановки в тексте шаблона: {callsign}, {runway}, {route}.</summary>
+/// <summary>Шаблоны ответов диспетчера. Подстановки в тексте шаблона: {callsign}, {runway}, {route}, {frequency}.</summary>
 public interface IPhraseBook
 {
     /// <exception cref="ArgumentException">Для шаблона не передано значение подстановки.</exception>
