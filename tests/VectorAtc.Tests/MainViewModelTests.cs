@@ -1,5 +1,7 @@
 using System.Globalization;
 using VectorAtc.Core.Controller;
+using VectorAtc.Core.Models;
+using VectorAtc.Core.Flight;
 using VectorAtc.Core.Parsing;
 using VectorAtc.Core.Phraseology;
 using VectorAtc.Localization;
@@ -252,6 +254,29 @@ public class MainViewModelTests
         f.Vm.ConnectCommand.Execute(null);
 
         Assert.Equal("Подключено (демо-режим)", f.Vm.StatusText);
+    }
+
+    [Fact]
+    public void Cabin_announcement_is_logged_and_retranslated_on_language_switch()
+    {
+        var loc = new LocalizationService();
+        var log = new ExchangeLog();
+        var sim = new MockSimDataSource();
+        var engine = new ControllerEngine(new PhraseBook(), MockScenarios.TestAirport, PhraseStyle.Icao, loc.Culture, log);
+        var vm = new MainViewModel(loc, engine, log, sim, null, null, new CabinAnnouncer());
+        vm.ConnectCommand.Execute(null);
+
+        sim.Push(new AircraftState(new GeoPoint(55, 37), 0, 270, 15, 0, true, 118100, 121500));
+
+        var line = vm.Lines.Single(l => l.Kind == LogSource.Cabin);
+        Assert.Equal("Cabin", line.Speaker);
+        Assert.Contains("welcome aboard", line.Text);
+
+        vm.ToggleLanguageCommand.Execute(null);
+
+        var ru = vm.Lines.Single(l => l.Kind == LogSource.Cabin);
+        Assert.Equal("Салон", ru.Speaker);
+        Assert.Contains("добро пожаловать на борт", ru.Text);
     }
 
     [Fact]

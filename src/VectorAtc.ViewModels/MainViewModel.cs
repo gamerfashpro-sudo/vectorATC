@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows.Input;
 using VectorAtc.Core.Abstractions;
 using VectorAtc.Core.Controller;
+using VectorAtc.Core.Flight;
 using VectorAtc.Core.Models;
 using VectorAtc.Core.Phraseology;
 using VectorAtc.Localization;
@@ -29,6 +30,7 @@ public sealed class MainViewModel : ObservableObject
     private readonly Func<ISimDataSource>? _realSimFactory;
     private ISimDataSource? _realSim;
     private AircraftState? _lastAircraft;
+    private readonly CabinAnnouncer? _cabin;
     private readonly Func<bool>? _advanceDemoFrame;
     private readonly RelayCommand _sendCommand;
     private readonly RelayCommand _connectCommand;
@@ -41,7 +43,7 @@ public sealed class MainViewModel : ObservableObject
 
     public MainViewModel(
         ILocalizationService loc, ControllerEngine engine, ExchangeLog log, ISimDataSource sim,
-        Func<bool>? advanceDemoFrame = null, Func<ISimDataSource>? realSimFactory = null)
+        Func<bool>? advanceDemoFrame = null, Func<ISimDataSource>? realSimFactory = null, CabinAnnouncer? cabin = null)
     {
         _loc = loc ?? throw new ArgumentNullException(nameof(loc));
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
@@ -50,6 +52,7 @@ public sealed class MainViewModel : ObservableObject
         _advanceDemoFrame = advanceDemoFrame;
         _demoSim = _sim;
         _realSimFactory = realSimFactory;
+        _cabin = cabin;
 
         _sendCommand = new RelayCommand(_ => SendInput(), _ => !string.IsNullOrWhiteSpace(InputText));
         _connectCommand = new RelayCommand(_ => ToggleConnection());
@@ -252,6 +255,12 @@ public sealed class MainViewModel : ObservableObject
     {
         _lastAircraft = state;
         _engine.OnAircraftState(state);
+        if (_cabin is not null)
+        {
+            foreach (var announcement in _cabin.Update(state))
+                _log.Add(LogSource.Cabin, _loc["Cabin." + announcement], "Cabin." + announcement);
+        }
+
         OnPropertyChanged(nameof(TelemetryText));
         RefreshFlight();
     }
@@ -276,6 +285,7 @@ public sealed class MainViewModel : ObservableObject
         {
             LogSource.Pilot => _loc["Log.PilotPrefix"],
             LogSource.Controller => _loc["Log.ControllerPrefix"],
+            LogSource.Cabin => _loc["Log.CabinPrefix"],
             _ => _loc["Log.ViolationPrefix"],
         };
         return new LogLine(entry.Time.ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture),

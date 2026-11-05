@@ -4,6 +4,8 @@ public enum LogSource
 {
     Pilot,
     Controller,
+    /// <summary>Объявление бортпроводника.</summary>
+    Cabin,
     /// <summary>Ошибка пилота, например неверный read-back.</summary>
     Violation
 }

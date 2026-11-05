@@ -48,4 +48,12 @@
   <data name="Violation.Readback.Callsign" xml:space="preserve"><value>Ошибка read-back: позывной</value></data>
   <data name="Violation.Readback.Runway" xml:space="preserve"><value>Ошибка read-back: полоса</value></data>
   <data name="Violation.Readback.Route" xml:space="preserve"><value>Ошибка read-back: маршрут руления</value></data>
+  <data name="Log.CabinPrefix" xml:space="preserve"><value>Салон</value></data>
+  <data name="Cabin.SafetyBriefing" xml:space="preserve"><value>Уважаемые пассажиры, добро пожаловать на борт. Уберите ручную кладь, пристегните ремни и просмотрите демонстрацию правил безопасности.</value></data>
+  <data name="Cabin.PrepareForTakeoff" xml:space="preserve"><value>Бортпроводникам занять места для взлёта.</value></data>
+  <data name="Cabin.CruiseInfo" xml:space="preserve"><value>Мы набрали эшелон. Вы можете ходить по салону; сидя, рекомендуем держать ремень пристёгнутым.</value></data>
+  <data name="Cabin.DescentPreparation" xml:space="preserve"><value>Мы начали снижение. Просим вернуться на свои места и убрать столики.</value></data>
+  <data name="Cabin.LandingPreparation" xml:space="preserve"><value>Мы готовимся к посадке. Бортпроводникам занять места для посадки; спинки кресел в вертикальное положение, шторки иллюминаторов открыть.</value></data>
+  <data name="Cabin.Landed" xml:space="preserve"><value>Добро пожаловать в пункт назначения. Оставайтесь на местах с пристёгнутыми ремнями до полной остановки самолёта.</value></data>
+  <data name="Cabin.Deplane" xml:space="preserve"><value>Самолёт остановился. Вы можете отстегнуть ремни. Благодарим, что летаете с нами.</value></data>
 </root>

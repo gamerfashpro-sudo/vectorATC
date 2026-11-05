@@ -48,4 +48,12 @@
   <data name="Violation.Readback.Callsign" xml:space="preserve"><value>Readback error: Callsign</value></data>
   <data name="Violation.Readback.Runway" xml:space="preserve"><value>Readback error: Runway</value></data>
   <data name="Violation.Readback.Route" xml:space="preserve"><value>Readback error: Route</value></data>
+  <data name="Log.CabinPrefix" xml:space="preserve"><value>Cabin</value></data>
+  <data name="Cabin.SafetyBriefing" xml:space="preserve"><value>Ladies and gentlemen, welcome aboard. Please stow your hand luggage, fasten your seat belts and watch the safety demonstration.</value></data>
+  <data name="Cabin.PrepareForTakeoff" xml:space="preserve"><value>Cabin crew, take your seats for takeoff.</value></data>
+  <data name="Cabin.CruiseInfo" xml:space="preserve"><value>We have reached our cruising altitude. You may move about the cabin; we recommend keeping your seat belt fastened while seated.</value></data>
+  <data name="Cabin.DescentPreparation" xml:space="preserve"><value>We have started our descent. Please return to your seats and stow your tray tables.</value></data>
+  <data name="Cabin.LandingPreparation" xml:space="preserve"><value>We are preparing to land. Cabin crew, take your seats for landing; seat backs upright, window shades open.</value></data>
+  <data name="Cabin.Landed" xml:space="preserve"><value>Welcome to our destination. Please remain seated with your seat belt fastened until the aircraft has come to a complete stop.</value></data>
+  <data name="Cabin.Deplane" xml:space="preserve"><value>The aircraft has stopped. You may now unfasten your seat belts. Thank you for flying with us.</value></data>
 </root>
