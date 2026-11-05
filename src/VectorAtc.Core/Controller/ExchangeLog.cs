@@ -8,7 +8,8 @@ public enum LogSource
     Violation
 }
 
-public sealed record LogEntry(DateTimeOffset Time, LogSource Source, string Text);
+/// <summary>Code — ключ локализуемого текста (если задан, интерфейс показывает перевод по ключу, а Text служит запасным вариантом).</summary>
+public sealed record LogEntry(DateTimeOffset Time, LogSource Source, string Text, string? Code = null);
 
 /// <summary>Журнал радиообмена. Время берётся из TimeProvider, чтобы тесты были детерминированными.</summary>
 public sealed class ExchangeLog
@@ -22,9 +23,9 @@ public sealed class ExchangeLog
 
     public event EventHandler<LogEntry>? EntryAdded;
 
-    public void Add(LogSource source, string text)
+    public void Add(LogSource source, string text, string? code = null)
     {
-        var entry = new LogEntry(_time.GetUtcNow(), source, text);
+        var entry = new LogEntry(_time.GetUtcNow(), source, text, code);
         _entries.Add(entry);
         EntryAdded?.Invoke(this, entry);
     }

@@ -205,6 +205,24 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void Language_switch_retranslates_existing_note_and_speaker_labels()
+    {
+        var f = new Fixture();
+        f.Type("N172SP request taxi");
+        f.Vm.SendCommand.Execute(null);
+        f.Type("runway three six via alpha bravo N172SP");
+        f.Vm.SendCommand.Execute(null);
+        var count = f.Vm.Lines.Count;
+
+        f.Vm.ToggleLanguageCommand.Execute(null);
+
+        Assert.Equal(count, f.Vm.Lines.Count);
+        var note = f.Vm.Lines.Single(l => l.Kind == LogSource.Violation);
+        Assert.Equal("Ошибка read-back: полоса", note.Text);
+        Assert.Equal("Пилот", f.Vm.Lines[0].Speaker);
+    }
+
+    [Fact]
     public void Test_airport_hold_point_matches_final_scenario_frame()
     {
         var last = MockScenarios.ParkedToHoldShort()[^1];

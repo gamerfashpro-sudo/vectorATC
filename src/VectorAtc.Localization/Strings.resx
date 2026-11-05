@@ -45,4 +45,7 @@
   <data name="Ui.Telemetry" xml:space="preserve"><value>Aircraft</value></data>
   <data name="Ui.OnGround" xml:space="preserve"><value>on ground</value></data>
   <data name="Ui.InAir" xml:space="preserve"><value>airborne</value></data>
+  <data name="Violation.Readback.Callsign" xml:space="preserve"><value>Readback error: Callsign</value></data>
+  <data name="Violation.Readback.Runway" xml:space="preserve"><value>Readback error: Runway</value></data>
+  <data name="Violation.Readback.Route" xml:space="preserve"><value>Readback error: Route</value></data>
 </root>

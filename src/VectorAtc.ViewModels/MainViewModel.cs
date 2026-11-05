@@ -205,6 +205,9 @@ public sealed class MainViewModel : ObservableObject
     {
         _engine.Culture = _loc.Culture;
         RebuildQuickActions();
+        Lines.Clear();
+        foreach (var entry in _log.Entries)
+            Lines.Add(ToLine(entry));
         OnPropertyChanged(string.Empty); // обновить все подписи
     }
 
@@ -276,6 +279,6 @@ public sealed class MainViewModel : ObservableObject
             _ => _loc["Log.ViolationPrefix"],
         };
         return new LogLine(entry.Time.ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture),
-            speaker, entry.Text, entry.Source);
+            speaker, entry.Code is null ? entry.Text : _loc[entry.Code], entry.Source);
     }
 }

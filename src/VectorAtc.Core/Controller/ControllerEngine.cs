@@ -139,7 +139,7 @@ public sealed class ControllerEngine
         }
 
         foreach (var error in result.Errors)
-            _log.Add(LogSource.Violation, $"Readback error: {error}");
+            _log.Add(LogSource.Violation, $"Readback error: {error}", $"Violation.Readback.{error}");
 
         // Клиренс повторяется, состояние остаётся прежним: пилот должен повторить его верно.
         return Reply(Say(PhraseId.ReadbackIncorrect), Say(PhraseId.TaxiClearance));
