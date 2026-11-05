@@ -39,6 +39,8 @@ dotnet test
 Собрать вручную (нужен .NET 8 SDK): `dotnet publish src/VectorAtc.App -p:PublishProfile=SingleExe`,
 файл появится в `src/VectorAtc.App/bin/publish/VectorATC.exe`.
 
+Отчёт этапа 0 (проверка документации SimConnect, GSX, лицензий, фразеологии): [docs/stage0-report.md](docs/stage0-report.md)
+
 ## План
 
 | Этап | Что | Статус |
