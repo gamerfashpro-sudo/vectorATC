@@ -37,4 +37,12 @@
   <data name="Quick.ReadyDeparture" xml:space="preserve"><value>Готов к взлёту</value></data>
   <data name="Log.ViolationPrefix" xml:space="preserve"><value>Замечание</value></data>
   <data name="Sim.DemoConnected" xml:space="preserve"><value>Подключено (демо-режим)</value></data>
+  <data name="Sim.Failure.LibraryNotFound" xml:space="preserve"><value>Не найден SimConnect.dll. Положите SimConnect.dll рядом с VectorATC.exe или установите SDK симулятора.</value></data>
+  <data name="Sim.Failure.OpenFailed" xml:space="preserve"><value>Не удалось подключиться. Запустите симулятор и дождитесь входа в полёт.</value></data>
+  <data name="Sim.Failure.RequestFailed" xml:space="preserve"><value>Симулятор отклонил запрос данных.</value></data>
+  <data name="Ui.SourceDemo" xml:space="preserve"><value>Источник: демо</value></data>
+  <data name="Ui.SourceSimulator" xml:space="preserve"><value>Источник: симулятор</value></data>
+  <data name="Ui.Telemetry" xml:space="preserve"><value>Самолёт</value></data>
+  <data name="Ui.OnGround" xml:space="preserve"><value>на земле</value></data>
+  <data name="Ui.InAir" xml:space="preserve"><value>в воздухе</value></data>
 </root>

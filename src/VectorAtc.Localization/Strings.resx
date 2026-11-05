@@ -37,4 +37,12 @@
   <data name="Quick.ReadyDeparture" xml:space="preserve"><value>Ready for departure</value></data>
   <data name="Log.ViolationPrefix" xml:space="preserve"><value>Note</value></data>
   <data name="Sim.DemoConnected" xml:space="preserve"><value>Connected (demo mode)</value></data>
+  <data name="Sim.Failure.LibraryNotFound" xml:space="preserve"><value>SimConnect.dll was not found. Put SimConnect.dll next to VectorATC.exe or install the simulator SDK.</value></data>
+  <data name="Sim.Failure.OpenFailed" xml:space="preserve"><value>Could not connect. Start the simulator and wait until you are in a flight.</value></data>
+  <data name="Sim.Failure.RequestFailed" xml:space="preserve"><value>The simulator rejected the data request.</value></data>
+  <data name="Ui.SourceDemo" xml:space="preserve"><value>Source: demo</value></data>
+  <data name="Ui.SourceSimulator" xml:space="preserve"><value>Source: simulator</value></data>
+  <data name="Ui.Telemetry" xml:space="preserve"><value>Aircraft</value></data>
+  <data name="Ui.OnGround" xml:space="preserve"><value>on ground</value></data>
+  <data name="Ui.InAir" xml:space="preserve"><value>airborne</value></data>
 </root>

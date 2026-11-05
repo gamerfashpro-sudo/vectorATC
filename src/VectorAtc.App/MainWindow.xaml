@@ -111,6 +111,7 @@
                     <WrapPanel>
                         <Button Content="{Binding ConnectButtonText}" Command="{Binding ConnectCommand}"/>
                         <Button Content="{Binding LabelNextFrame}" Command="{Binding NextFrameCommand}"/>
+                        <Button Content="{Binding SourceButtonText}" Command="{Binding ToggleSourceCommand}"/>
                     </WrapPanel>
                 </StackPanel>
             </Border>
@@ -122,6 +123,13 @@
                                Foreground="{StaticResource Accent}" Margin="0,0,0,10"/>
                     <TextBlock Text="{Binding LabelState}" Style="{StaticResource Caption}"/>
                     <TextBlock Text="{Binding StateText}" FontSize="15" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="{Binding LabelTelemetry}" Style="{StaticResource Caption}"/>
+                    <TextBlock Text="{Binding TelemetryText}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
 
