@@ -47,9 +47,19 @@ jobs:
           name: VectorATC-exe
           path: src/VectorAtc.App/bin/publish/VectorATC.exe
           if-no-files-found: error
-      - name: Attach exe to the release (tags only)
+      - name: Attach exe to the release (version tags)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           files: src/VectorAtc.App/bin/publish/VectorATC.exe
           prerelease: true
+      - name: Publish latest build to the release (main)
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Vector ATC (latest build)
+          body: Автоматическая сборка последнего состояния main. Скачайте VectorATC.exe.
+          files: src/VectorAtc.App/bin/publish/VectorATC.exe
+          prerelease: true
+          make_latest: false
