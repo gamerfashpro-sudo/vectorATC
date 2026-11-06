@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Windows;
 using VectorAtc.Core.Controller;
+using VectorAtc.Core.Flight;
 using VectorAtc.Core.Phraseology;
 using VectorAtc.Localization;
 using VectorAtc.SimLink;
