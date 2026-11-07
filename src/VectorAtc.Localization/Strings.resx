@@ -56,4 +56,7 @@
   <data name="Cabin.LandingPreparation" xml:space="preserve"><value>We are preparing to land. Cabin crew, take your seats for landing; seat backs upright, window shades open.</value></data>
   <data name="Cabin.Landed" xml:space="preserve"><value>Welcome to our destination. Please remain seated with your seat belt fastened until the aircraft has come to a complete stop.</value></data>
   <data name="Cabin.Deplane" xml:space="preserve"><value>The aircraft has stopped. You may now unfasten your seat belts. Thank you for flying with us.</value></data>
+  <data name="Ui.VoiceOn" xml:space="preserve"><value>Voice: on</value></data>
+  <data name="Ui.VoiceOff" xml:space="preserve"><value>Voice: off</value></data>
+  <data name="Ui.VoiceMissing" xml:space="preserve"><value>Voice: none for this language</value></data>
 </root>

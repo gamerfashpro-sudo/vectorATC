@@ -1,4 +1,5 @@
 using System.Globalization;
+using VectorAtc.Core.Speech;
 using VectorAtc.Core.Controller;
 using VectorAtc.Core.Models;
 using VectorAtc.Core.Flight;
@@ -291,6 +292,81 @@ public class MainViewModelTests
 
         Assert.True(f.Vm.IsConnected);
         Assert.Contains("IsConnected", changed);
+    }
+
+    private sealed class FakeSpeech : ISpeechOutput
+    {
+        public List<(string Text, string Lang, SpeechRole Role)> Spoken { get; } = new();
+        public int Stops { get; private set; }
+        public HashSet<string> Languages { get; } = new() { "en", "ru" };
+
+        public bool CanSpeak(CultureInfo culture) => Languages.Contains(culture.TwoLetterISOLanguageName);
+        public void Speak(string text, CultureInfo culture, SpeechRole role) =>
+            Spoken.Add((text, culture.TwoLetterISOLanguageName, role));
+        public void Stop() => Stops++;
+    }
+
+    private static (MainViewModel Vm, FakeSpeech Speech, MockSimDataSource Sim) SpeechFixture()
+    {
+        var loc = new LocalizationService();
+        var log = new ExchangeLog();
+        var sim = new MockSimDataSource();
+        var speech = new FakeSpeech();
+        var engine = new ControllerEngine(new PhraseBook(), MockScenarios.TestAirport, PhraseStyle.Icao, loc.Culture, log);
+        var vm = new MainViewModel(loc, engine, log, sim, null, null, new CabinAnnouncer(), speech);
+        return (vm, speech, sim);
+    }
+
+    [Fact]
+    public void Controller_reply_is_spoken_but_pilot_line_is_not()
+    {
+        var (vm, speech, _) = SpeechFixture();
+        vm.InputText = "N172SP request taxi";
+        vm.SendCommand.Execute(null);
+
+        var spoken = Assert.Single(speech.Spoken);
+        Assert.Equal(SpeechRole.Controller, spoken.Role);
+        Assert.Equal("en", spoken.Lang);
+        Assert.Equal("N172SP, taxi to holding point runway 27 via Alpha, Bravo", spoken.Text);
+    }
+
+    [Fact]
+    public void Cabin_announcement_is_spoken_with_cabin_role()
+    {
+        var (vm, speech, sim) = SpeechFixture();
+        vm.ConnectCommand.Execute(null);
+        sim.Push(new AircraftState(new GeoPoint(55, 37), 0, 270, 15, 0, true, 118100, 121500));
+
+        var spoken = Assert.Single(speech.Spoken);
+        Assert.Equal(SpeechRole.Cabin, spoken.Role);
+        Assert.Contains("welcome aboard", spoken.Text);
+    }
+
+    [Fact]
+    public void Voice_off_silences_and_stops_current_speech()
+    {
+        var (vm, speech, _) = SpeechFixture();
+        Assert.Equal("Voice: on", vm.VoiceButtonText);
+
+        vm.ToggleVoiceCommand.Execute(null);
+
+        Assert.Equal("Voice: off", vm.VoiceButtonText);
+        Assert.Equal(1, speech.Stops);
+        vm.InputText = "N172SP request taxi";
+        vm.SendCommand.Execute(null);
+        Assert.Empty(speech.Spoken);
+    }
+
+    [Fact]
+    public void Language_switch_stops_speech_and_reports_missing_voice()
+    {
+        var (vm, speech, _) = SpeechFixture();
+        speech.Languages.Remove("ru");
+
+        vm.ToggleLanguageCommand.Execute(null);
+
+        Assert.Equal(1, speech.Stops);
+        Assert.Equal("Голос: нет для этого языка", vm.VoiceButtonText);
     }
 
     [Fact]

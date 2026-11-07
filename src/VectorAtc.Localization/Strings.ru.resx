@@ -56,4 +56,7 @@
   <data name="Cabin.LandingPreparation" xml:space="preserve"><value>Мы готовимся к посадке. Бортпроводникам занять места для посадки; спинки кресел в вертикальное положение, шторки иллюминаторов открыть.</value></data>
   <data name="Cabin.Landed" xml:space="preserve"><value>Добро пожаловать в пункт назначения. Оставайтесь на местах с пристёгнутыми ремнями до полной остановки самолёта.</value></data>
   <data name="Cabin.Deplane" xml:space="preserve"><value>Самолёт остановился. Вы можете отстегнуть ремни. Благодарим, что летаете с нами.</value></data>
+  <data name="Ui.VoiceOn" xml:space="preserve"><value>Голос: вкл</value></data>
+  <data name="Ui.VoiceOff" xml:space="preserve"><value>Голос: выкл</value></data>
+  <data name="Ui.VoiceMissing" xml:space="preserve"><value>Голос: нет для этого языка</value></data>
 </root>

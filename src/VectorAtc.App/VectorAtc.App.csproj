@@ -12,6 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Speech" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\VectorAtc.Core\VectorAtc.Core.csproj" />
     <ProjectReference Include="..\VectorAtc.SimLink\VectorAtc.SimLink.csproj" />
     <ProjectReference Include="..\VectorAtc.Localization\VectorAtc.Localization.csproj" />

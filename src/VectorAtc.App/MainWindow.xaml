@@ -45,6 +45,8 @@
                                 MinWidth="56"/>
                         <Button Content="{Binding StyleButtonText}" Command="{Binding ToggleStyleCommand}"
                                 MinWidth="56"/>
+                        <Button Content="{Binding VoiceButtonText}" Command="{Binding ToggleVoiceCommand}"
+                                Visibility="{Binding IsVoiceVisible, Converter={StaticResource BoolToVisibility}}"/>
                     </WrapPanel>
                 </StackPanel>
             </Grid>

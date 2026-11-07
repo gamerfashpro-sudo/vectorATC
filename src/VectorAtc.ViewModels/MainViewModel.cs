@@ -4,6 +4,7 @@ using System.Windows.Input;
 using VectorAtc.Core.Abstractions;
 using VectorAtc.Core.Controller;
 using VectorAtc.Core.Flight;
+using VectorAtc.Core.Speech;
 using VectorAtc.Core.Models;
 using VectorAtc.Core.Phraseology;
 using VectorAtc.Localization;
@@ -31,6 +32,8 @@ public sealed class MainViewModel : ObservableObject
     private ISimDataSource? _realSim;
     private AircraftState? _lastAircraft;
     private readonly CabinAnnouncer? _cabin;
+    private readonly ISpeechOutput? _speech;
+    private bool _voiceEnabled = true;
     private readonly Func<bool>? _advanceDemoFrame;
     private readonly RelayCommand _sendCommand;
     private readonly RelayCommand _connectCommand;
@@ -43,7 +46,8 @@ public sealed class MainViewModel : ObservableObject
 
     public MainViewModel(
         ILocalizationService loc, ControllerEngine engine, ExchangeLog log, ISimDataSource sim,
-        Func<bool>? advanceDemoFrame = null, Func<ISimDataSource>? realSimFactory = null, CabinAnnouncer? cabin = null)
+        Func<bool>? advanceDemoFrame = null, Func<ISimDataSource>? realSimFactory = null, CabinAnnouncer? cabin = null,
+        ISpeechOutput? speech = null)
     {
         _loc = loc ?? throw new ArgumentNullException(nameof(loc));
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
@@ -53,6 +57,7 @@ public sealed class MainViewModel : ObservableObject
         _demoSim = _sim;
         _realSimFactory = realSimFactory;
         _cabin = cabin;
+        _speech = speech;
 
         _sendCommand = new RelayCommand(_ => SendInput(), _ => !string.IsNullOrWhiteSpace(InputText));
         _connectCommand = new RelayCommand(_ => ToggleConnection());
@@ -69,11 +74,16 @@ public sealed class MainViewModel : ObservableObject
         ToggleSourceCommand = _toggleSourceCommand;
         ToggleLanguageCommand = new RelayCommand(_ => ToggleLanguage());
         ToggleStyleCommand = new RelayCommand(_ => ToggleStyle());
+        ToggleVoiceCommand = new RelayCommand(_ => ToggleVoice(), _ => _speech is not null);
 
         _engine.Culture = _loc.Culture;
         RebuildQuickActions();
 
-        _log.EntryAdded += (_, entry) => Lines.Add(ToLine(entry));
+        _log.EntryAdded += (_, entry) =>
+        {
+            Lines.Add(ToLine(entry));
+            Speak(entry);
+        };
         _loc.LanguageChanged += (_, _) => OnLanguageChanged();
         HookSim(_sim);
     }
@@ -83,6 +93,7 @@ public sealed class MainViewModel : ObservableObject
     public ICommand SendCommand { get; }
     public ICommand ConnectCommand { get; }
     public ICommand NextFrameCommand { get; }
+    public ICommand ToggleVoiceCommand { get; }
     public ICommand ToggleSourceCommand { get; }
     public ICommand ToggleLanguageCommand { get; }
     public ICommand ToggleStyleCommand { get; }
@@ -210,11 +221,36 @@ public sealed class MainViewModel : ObservableObject
     private void OnLanguageChanged()
     {
         _engine.Culture = _loc.Culture;
+        _speech?.Stop();
         RebuildQuickActions();
         Lines.Clear();
         foreach (var entry in _log.Entries)
             Lines.Add(ToLine(entry));
         OnPropertyChanged(string.Empty); // обновить все подписи
+    }
+
+    /// <summary>Подпись кнопки голоса: включён, выключен или нет голоса для языка интерфейса.</summary>
+    public string VoiceButtonText =>
+        _speech is null || !_speech.CanSpeak(_loc.Culture) ? _loc["Ui.VoiceMissing"]
+        : _loc[_voiceEnabled ? "Ui.VoiceOn" : "Ui.VoiceOff"];
+
+    public bool IsVoiceVisible => _speech is not null;
+
+    private void ToggleVoice()
+    {
+        _voiceEnabled = !_voiceEnabled;
+        if (!_voiceEnabled)
+            _speech?.Stop();
+        OnPropertyChanged(nameof(VoiceButtonText));
+    }
+
+    /// <summary>Озвучивает реплики диспетчера и салона; слова пилота и замечания не озвучиваются.</summary>
+    private void Speak(LogEntry entry)
+    {
+        if (_speech is null || !_voiceEnabled || entry.Source is LogSource.Pilot or LogSource.Violation)
+            return;
+        var role = entry.Source == LogSource.Cabin ? SpeechRole.Cabin : SpeechRole.Controller;
+        _speech.Speak(entry.Text, _loc.Culture, role);
     }
 
     private void RebuildQuickActions() =>
