@@ -280,6 +280,20 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void IsConnected_follows_connection_and_notifies_the_window()
+    {
+        var f = new Fixture();
+        var changed = new List<string?>();
+        f.Vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        Assert.False(f.Vm.IsConnected);
+        f.Vm.ConnectCommand.Execute(null);
+
+        Assert.True(f.Vm.IsConnected);
+        Assert.Contains("IsConnected", changed);
+    }
+
+    [Fact]
     public void Status_without_demo_source_says_connected_to_simulator()
     {
         var loc = new LocalizationService();

@@ -131,6 +131,9 @@ public sealed class MainViewModel : ObservableObject
     public string ConnectButtonText =>
         _loc[_sim.ConnectionState == SimConnectionState.Disconnected ? "Ui.Connect" : "Ui.Disconnect"];
 
+    /// <summary>true, пока есть соединение с источником данных (индикатор в окне).</summary>
+    public bool IsConnected => _sim.ConnectionState == SimConnectionState.Connected;
+
     /// <summary>true, пока источником данных служит встроенная имитация.</summary>
     public bool IsDemo => _advanceDemoFrame is not null && ReferenceEquals(_sim, _demoSim);
 
@@ -233,6 +236,7 @@ public sealed class MainViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(StatusText));
         OnPropertyChanged(nameof(ConnectButtonText));
+        OnPropertyChanged(nameof(IsConnected));
         _nextFrameCommand.NotifyCanExecuteChanged();
         _toggleSourceCommand.NotifyCanExecuteChanged();
     }
