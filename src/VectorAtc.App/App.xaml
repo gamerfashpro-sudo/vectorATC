@@ -139,6 +139,25 @@
             <Setter Property="Margin" Value="0,0,0,14"/>
         </Style>
 
+        <Style TargetType="ProgressBar">
+            <Setter Property="Height" Value="6"/>
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="Maximum" Value="100"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid>
+                            <Border Background="#1FFFFFFF" CornerRadius="3"/>
+                            <Border x:Name="PART_Track">
+                                <Border x:Name="PART_Indicator" Background="{StaticResource Accent}"
+                                        CornerRadius="3" HorizontalAlignment="Left"/>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="Caption" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource Muted}"/>
             <Setter Property="FontSize" Value="11"/>

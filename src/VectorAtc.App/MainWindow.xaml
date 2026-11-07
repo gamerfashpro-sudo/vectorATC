@@ -190,7 +190,8 @@
         </Border>
 
         <!-- Справа: симулятор, диспетчер, самолёт -->
-        <StackPanel Grid.Column="2">
+        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Margin="0,0,-8,0">
+        <StackPanel Margin="0,0,8,0">
             <Border Style="{StaticResource Card}">
                 <StackPanel>
                     <TextBlock Text="{Binding LabelStatus}" Style="{StaticResource Caption}"/>
@@ -221,6 +222,36 @@
                                TextWrapping="Wrap" LineHeight="20"/>
                 </StackPanel>
             </Border>
+
+            <Border Style="{StaticResource Card}"
+                    Visibility="{Binding IsGroundVisible, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <TextBlock Text="{Binding LabelGround}" Style="{StaticResource Caption}"/>
+                    <ItemsControl ItemsSource="{Binding GroundServices}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,6,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <Grid>
+                                            <TextBlock Text="{Binding Name}" FontSize="13"/>
+                                            <TextBlock Text="{Binding StateText}" FontSize="12" HorizontalAlignment="Right"
+                                                       Foreground="{StaticResource Muted}"/>
+                                        </Grid>
+                                        <ProgressBar Value="{Binding ProgressPercent}" Margin="0,6,0,0"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="{Binding DataContext.LabelOrder, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            Command="{Binding RequestCommand}" Margin="12,0,0,0" Padding="12,5"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
         </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Window>

@@ -34,6 +34,17 @@ public partial class MainWindow : Window
         TalkButton.PreviewMouseLeftButtonUp += (_, _) => (DataContext as MainViewModel)?.EndTalk();
         TalkButton.LostMouseCapture += (_, _) => (DataContext as MainViewModel)?.EndTalk();
 
+        // Таймер двигает наземные услуги раз в секунду.
+        var last = DateTime.UtcNow;
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        timer.Tick += (_, _) =>
+        {
+            var now = DateTime.UtcNow;
+            (DataContext as MainViewModel)?.AdvanceGround(now - last);
+            last = now;
+        };
+        timer.Start();
+
         // Новая строка журнала прокручивает список вниз.
         Loaded += (_, _) =>
         {

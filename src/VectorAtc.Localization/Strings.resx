@@ -64,4 +64,26 @@
   <data name="Ui.TalkMissing" xml:space="preserve"><value>Speech input: none for this language</value></data>
   <data name="Voice.NotUnderstood" xml:space="preserve"><value>Could not understand. Say it again.</value></data>
   <data name="Voice.Failed" xml:space="preserve"><value>Microphone or recognizer is unavailable.</value></data>
+  <data name="Ui.GroundCaption" xml:space="preserve"><value>Ground services</value></data>
+  <data name="Ui.GroundOrder" xml:space="preserve"><value>Order</value></data>
+  <data name="Log.GroundPrefix" xml:space="preserve"><value>Ground crew</value></data>
+  <data name="Ground.State.Idle" xml:space="preserve"><value>Not ordered</value></data>
+  <data name="Ground.State.Completed" xml:space="preserve"><value>Done</value></data>
+  <data name="Ground.Unavailable" xml:space="preserve"><value>Ground services are available only while the aircraft is parked.</value></data>
+  <data name="Ground.Busy" xml:space="preserve"><value>This service cannot be started right now.</value></data>
+  <data name="Ground.Service.Refuel" xml:space="preserve"><value>Refuelling</value></data>
+  <data name="Ground.Service.Boarding" xml:space="preserve"><value>Boarding</value></data>
+  <data name="Ground.Service.Catering" xml:space="preserve"><value>Catering</value></data>
+  <data name="Ground.Service.Baggage" xml:space="preserve"><value>Baggage</value></data>
+  <data name="Ground.Service.Deboarding" xml:space="preserve"><value>Deboarding</value></data>
+  <data name="Ground.Started.Refuel" xml:space="preserve"><value>Refuelling started.</value></data>
+  <data name="Ground.Done.Refuel" xml:space="preserve"><value>Refuelling complete.</value></data>
+  <data name="Ground.Started.Boarding" xml:space="preserve"><value>Boarding started.</value></data>
+  <data name="Ground.Done.Boarding" xml:space="preserve"><value>Boarding complete.</value></data>
+  <data name="Ground.Started.Catering" xml:space="preserve"><value>Catering loading started.</value></data>
+  <data name="Ground.Done.Catering" xml:space="preserve"><value>Catering loaded.</value></data>
+  <data name="Ground.Started.Baggage" xml:space="preserve"><value>Baggage loading started.</value></data>
+  <data name="Ground.Done.Baggage" xml:space="preserve"><value>Baggage loaded.</value></data>
+  <data name="Ground.Started.Deboarding" xml:space="preserve"><value>Deboarding started.</value></data>
+  <data name="Ground.Done.Deboarding" xml:space="preserve"><value>Deboarding complete.</value></data>
 </root>

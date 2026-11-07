@@ -6,6 +6,8 @@ public enum LogSource
     Controller,
     /// <summary>Объявление бортпроводника.</summary>
     Cabin,
+    /// <summary>Сообщение наземной службы.</summary>
+    Ground,
     /// <summary>Ошибка пилота, например неверный read-back.</summary>
     Violation
 }

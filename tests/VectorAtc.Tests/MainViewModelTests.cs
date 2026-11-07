@@ -1,6 +1,7 @@
 using System.Globalization;
 using VectorAtc.Core.Speech;
 using VectorAtc.Core.Controller;
+using VectorAtc.Core.Ground;
 using VectorAtc.Core.Models;
 using VectorAtc.Core.Flight;
 using VectorAtc.Core.Parsing;
@@ -460,6 +461,88 @@ public class MainViewModelTests
         vm.BeginTalk();
         Assert.Single(mic.Started);
         Assert.False(vm.IsListening);
+    }
+
+    private static (MainViewModel Vm, MockSimDataSource Sim, FakeSpeech Speech) GroundFixture()
+    {
+        var loc = new LocalizationService();
+        var log = new ExchangeLog();
+        var sim = new MockSimDataSource();
+        var speech = new FakeSpeech();
+        var engine = new ControllerEngine(new PhraseBook(), MockScenarios.TestAirport, PhraseStyle.Icao, loc.Culture, log);
+        var ground = new SimulatedGroundServices(new Dictionary<GroundService, TimeSpan>
+        {
+            [GroundService.Refuel] = TimeSpan.FromSeconds(10),
+            [GroundService.Boarding] = TimeSpan.FromSeconds(10),
+            [GroundService.Catering] = TimeSpan.FromSeconds(10),
+            [GroundService.Baggage] = TimeSpan.FromSeconds(10),
+            [GroundService.Deboarding] = TimeSpan.FromSeconds(10),
+        });
+        var vm = new MainViewModel(loc, engine, log, sim, null, null, null, speech, null, ground);
+        return (vm, sim, speech);
+    }
+
+    [Fact]
+    public void Ground_service_runs_logs_start_and_finish_and_is_not_spoken()
+    {
+        var (vm, _, speech) = GroundFixture();
+        var refuel = vm.GroundServices[0];
+        Assert.Equal("Refuelling", refuel.Name);
+        Assert.Equal("Not ordered", refuel.StateText);
+
+        refuel.RequestCommand.Execute(null);
+        Assert.Equal("Ground crew", vm.Lines[0].Speaker);
+        Assert.Equal("Refuelling started.", vm.Lines[0].Text);
+
+        vm.AdvanceGround(TimeSpan.FromSeconds(5));
+        Assert.Equal("50%", refuel.StateText);
+        Assert.Equal(50, refuel.ProgressPercent);
+        Assert.False(refuel.RequestCommand.CanExecute(null));
+
+        vm.AdvanceGround(TimeSpan.FromSeconds(5));
+        Assert.Equal("Done", refuel.StateText);
+        Assert.Equal("Refuelling complete.", vm.Lines[^1].Text);
+        Assert.True(refuel.RequestCommand.CanExecute(null));
+        Assert.Empty(speech.Spoken);
+    }
+
+    [Fact]
+    public void Ground_texts_and_lines_are_retranslated_on_language_switch()
+    {
+        var (vm, _, _) = GroundFixture();
+        vm.GroundServices[0].RequestCommand.Execute(null);
+
+        vm.ToggleLanguageCommand.Execute(null);
+
+        Assert.Equal("Заправка", vm.GroundServices[0].Name);
+        Assert.Equal("Заправка началась.", vm.Lines[0].Text);
+        Assert.Equal("Наземная служба", vm.Lines[0].Speaker);
+    }
+
+    [Fact]
+    public void Ground_service_is_refused_while_aircraft_is_moving_or_airborne()
+    {
+        var (vm, sim, _) = GroundFixture();
+        vm.ConnectCommand.Execute(null);
+        sim.Push(new AircraftState(new GeoPoint(55, 37), 0, 270, 15, 0, true, 118100, 121500));
+
+        vm.GroundServices[1].RequestCommand.Execute(null);
+
+        Assert.Equal("Ground services are available only while the aircraft is parked.",
+            vm.Lines.Single(l => l.Kind == LogSource.Violation).Text);
+        Assert.Equal("Not ordered", vm.GroundServices[1].StateText);
+    }
+
+    [Fact]
+    public void Deboarding_while_boarding_is_refused_with_a_note()
+    {
+        var (vm, _, _) = GroundFixture();
+        vm.GroundServices[1].RequestCommand.Execute(null);
+        vm.GroundServices[4].RequestCommand.Execute(null);
+
+        Assert.Equal("This service cannot be started right now.",
+            vm.Lines.Single(l => l.Kind == LogSource.Violation).Text);
+        Assert.Equal("Not ordered", vm.GroundServices[4].StateText);
     }
 
     [Fact]

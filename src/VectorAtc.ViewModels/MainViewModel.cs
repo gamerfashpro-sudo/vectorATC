@@ -4,6 +4,7 @@ using System.Windows.Input;
 using VectorAtc.Core.Abstractions;
 using VectorAtc.Core.Controller;
 using VectorAtc.Core.Flight;
+using VectorAtc.Core.Ground;
 using VectorAtc.Core.Speech;
 using VectorAtc.Core.Models;
 using VectorAtc.Core.Phraseology;
@@ -35,6 +36,7 @@ public sealed class MainViewModel : ObservableObject
     private readonly ISpeechOutput? _speech;
     private bool _voiceEnabled = true;
     private readonly ISpeechInput? _listener;
+    private readonly IGroundServicesProvider? _ground;
     private bool _isListening;
     private readonly Func<bool>? _advanceDemoFrame;
     private readonly RelayCommand _sendCommand;
@@ -49,7 +51,8 @@ public sealed class MainViewModel : ObservableObject
     public MainViewModel(
         ILocalizationService loc, ControllerEngine engine, ExchangeLog log, ISimDataSource sim,
         Func<bool>? advanceDemoFrame = null, Func<ISimDataSource>? realSimFactory = null, CabinAnnouncer? cabin = null,
-        ISpeechOutput? speech = null, ISpeechInput? listener = null)
+        ISpeechOutput? speech = null, ISpeechInput? listener = null,
+        IGroundServicesProvider? ground = null)
     {
         _loc = loc ?? throw new ArgumentNullException(nameof(loc));
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
@@ -61,6 +64,14 @@ public sealed class MainViewModel : ObservableObject
         _cabin = cabin;
         _speech = speech;
         _listener = listener;
+        _ground = ground;
+        if (_ground is not null)
+        {
+            foreach (var status in _ground.Statuses)
+                GroundServices.Add(new GroundServiceItem(status.Service, RequestGround));
+            RefreshGround();
+            _ground.Changed += (_, change) => OnGroundChanged(change);
+        }
         if (_listener is not null)
         {
             _listener.Recognized += (_, text) => OnHeard(text);
@@ -98,6 +109,61 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public ObservableCollection<LogLine> Lines { get; } = new();
+
+    public ObservableCollection<GroundServiceItem> GroundServices { get; } = new();
+
+    public bool IsGroundVisible => _ground is not null;
+
+    public string LabelGround => _loc["Ui.GroundCaption"];
+
+    public string LabelOrder => _loc["Ui.GroundOrder"];
+
+    /// <summary>Сообщает, сколько времени прошло, чтобы услуги двигались (вызывается таймером окна).</summary>
+    public void AdvanceGround(TimeSpan elapsed)
+    {
+        if (_ground is null) return;
+        _ground.Advance(elapsed);
+        RefreshGround();
+    }
+
+    private void RequestGround(GroundService service)
+    {
+        if (_ground is null) return;
+        var a = _lastAircraft;
+        if (a is not null && (!a.OnGround || a.GroundSpeedKnots >= 1))
+        {
+            _log.Add(LogSource.Violation, _loc["Ground.Unavailable"], "Ground.Unavailable");
+            return;
+        }
+
+        if (!_ground.Request(service))
+            _log.Add(LogSource.Violation, _loc["Ground.Busy"], "Ground.Busy");
+        RefreshGround();
+    }
+
+    private void OnGroundChanged(GroundServiceChange change)
+    {
+        var key = (change.State == GroundServiceState.InProgress ? "Ground.Started." : "Ground.Done.") + change.Service;
+        _log.Add(LogSource.Ground, _loc[key], key);
+        RefreshGround();
+    }
+
+    private void RefreshGround()
+    {
+        if (_ground is null) return;
+        var statuses = _ground.Statuses;
+        for (var i = 0; i < statuses.Count && i < GroundServices.Count; i++)
+        {
+            var s = statuses[i];
+            var state = s.State switch
+            {
+                GroundServiceState.InProgress => string.Format(CultureInfo.InvariantCulture, "{0:F0}%", s.Progress * 100),
+                GroundServiceState.Completed => _loc["Ground.State.Completed"],
+                _ => _loc["Ground.State.Idle"],
+            };
+            GroundServices[i].Update(s, _loc["Ground.Service." + s.Service], state);
+        }
+    }
 
     public ICommand SendCommand { get; }
     public ICommand ConnectCommand { get; }
@@ -232,6 +298,7 @@ public sealed class MainViewModel : ObservableObject
         _engine.Culture = _loc.Culture;
         _speech?.Stop();
         EndTalk();
+        RefreshGround();
         RebuildQuickActions();
         Lines.Clear();
         foreach (var entry in _log.Entries)
@@ -307,7 +374,7 @@ public sealed class MainViewModel : ObservableObject
     /// <summary>Озвучивает реплики диспетчера и салона; слова пилота и замечания не озвучиваются.</summary>
     private void Speak(LogEntry entry)
     {
-        if (_speech is null || !_voiceEnabled || entry.Source is LogSource.Pilot or LogSource.Violation)
+        if (_speech is null || !_voiceEnabled || entry.Source is LogSource.Pilot or LogSource.Violation or LogSource.Ground)
             return;
         var role = entry.Source == LogSource.Cabin ? SpeechRole.Cabin : SpeechRole.Controller;
         _speech.Speak(entry.Text, _loc.Culture, role);
@@ -386,6 +453,7 @@ public sealed class MainViewModel : ObservableObject
             LogSource.Pilot => _loc["Log.PilotPrefix"],
             LogSource.Controller => _loc["Log.ControllerPrefix"],
             LogSource.Cabin => _loc["Log.CabinPrefix"],
+            LogSource.Ground => _loc["Log.GroundPrefix"],
             _ => _loc["Log.ViolationPrefix"],
         };
         return new LogLine(entry.Time.ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture),

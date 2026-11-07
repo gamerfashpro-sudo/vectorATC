@@ -64,4 +64,26 @@
   <data name="Ui.TalkMissing" xml:space="preserve"><value>Голосовой ввод: нет для этого языка</value></data>
   <data name="Voice.NotUnderstood" xml:space="preserve"><value>Не удалось разобрать. Повторите.</value></data>
   <data name="Voice.Failed" xml:space="preserve"><value>Микрофон или распознаватель недоступны.</value></data>
+  <data name="Ui.GroundCaption" xml:space="preserve"><value>Наземное обслуживание</value></data>
+  <data name="Ui.GroundOrder" xml:space="preserve"><value>Заказать</value></data>
+  <data name="Log.GroundPrefix" xml:space="preserve"><value>Наземная служба</value></data>
+  <data name="Ground.State.Idle" xml:space="preserve"><value>Не заказано</value></data>
+  <data name="Ground.State.Completed" xml:space="preserve"><value>Готово</value></data>
+  <data name="Ground.Unavailable" xml:space="preserve"><value>Наземное обслуживание доступно только на стоянке.</value></data>
+  <data name="Ground.Busy" xml:space="preserve"><value>Эту услугу сейчас нельзя начать.</value></data>
+  <data name="Ground.Service.Refuel" xml:space="preserve"><value>Заправка</value></data>
+  <data name="Ground.Service.Boarding" xml:space="preserve"><value>Посадка пассажиров</value></data>
+  <data name="Ground.Service.Catering" xml:space="preserve"><value>Бортпитание</value></data>
+  <data name="Ground.Service.Baggage" xml:space="preserve"><value>Багаж</value></data>
+  <data name="Ground.Service.Deboarding" xml:space="preserve"><value>Высадка пассажиров</value></data>
+  <data name="Ground.Started.Refuel" xml:space="preserve"><value>Заправка началась.</value></data>
+  <data name="Ground.Done.Refuel" xml:space="preserve"><value>Заправка завершена.</value></data>
+  <data name="Ground.Started.Boarding" xml:space="preserve"><value>Посадка пассажиров началась.</value></data>
+  <data name="Ground.Done.Boarding" xml:space="preserve"><value>Посадка пассажиров завершена.</value></data>
+  <data name="Ground.Started.Catering" xml:space="preserve"><value>Загрузка бортпитания началась.</value></data>
+  <data name="Ground.Done.Catering" xml:space="preserve"><value>Бортпитание загружено.</value></data>
+  <data name="Ground.Started.Baggage" xml:space="preserve"><value>Загрузка багажа началась.</value></data>
+  <data name="Ground.Done.Baggage" xml:space="preserve"><value>Багаж загружен.</value></data>
+  <data name="Ground.Started.Deboarding" xml:space="preserve"><value>Высадка пассажиров началась.</value></data>
+  <data name="Ground.Done.Deboarding" xml:space="preserve"><value>Высадка пассажиров завершена.</value></data>
 </root>
