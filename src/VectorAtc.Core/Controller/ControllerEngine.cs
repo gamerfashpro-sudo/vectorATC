@@ -30,6 +30,9 @@ public sealed class ControllerEngine
 {
     private readonly IPhraseBook _phrases;
     private readonly AirportInfo _airport;
+
+    /// <summary>Аэродром, с которым работает диспетчер (нужен, например, чтобы центрировать карту до получения данных самолёта).</summary>
+    public AirportInfo Airport => _airport;
     private CultureInfo _culture;
     private readonly ExchangeLog _log;
     private readonly RequestParser _parser = new();

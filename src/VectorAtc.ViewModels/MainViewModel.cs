@@ -4,6 +4,7 @@ using System.Windows.Input;
 using VectorAtc.Core.Abstractions;
 using VectorAtc.Core.Controller;
 using VectorAtc.Core.Flight;
+using VectorAtc.Core.Geo;
 using VectorAtc.Core.Ground;
 using VectorAtc.Core.Traffic;
 using VectorAtc.Core.Speech;
@@ -40,7 +41,12 @@ public sealed class MainViewModel : ObservableObject
     private readonly IGroundServicesProvider? _ground;
     private readonly ITrafficSource? _traffic;
     private IReadOnlyList<TrafficRow> _trafficRows = Array.Empty<TrafficRow>();
-    private bool _isTrafficView;
+    private MainView _view = MainView.Radio;
+    private static readonly double[] MapRanges = { 10, 20, 40, 80, 160 };
+    private int _mapRangeIndex = 2;
+    private double _mapWidth, _mapHeight;
+    private IReadOnlyList<MapMarker> _mapMarkers = Array.Empty<MapMarker>();
+    private IReadOnlyList<MapRing> _mapRings = Array.Empty<MapRing>();
     private bool _isListening;
     private readonly Func<bool>? _advanceDemoFrame;
     private readonly RelayCommand _sendCommand;
@@ -122,21 +128,111 @@ public sealed class MainViewModel : ObservableObject
 
     public bool IsTabsVisible => _traffic is not null;
 
-    public bool IsTrafficView
+    private enum MainView
     {
-        get => _isTrafficView;
-        private set
-        {
-            if (!SetProperty(ref _isTrafficView, value)) return;
-            OnPropertyChanged(nameof(IsLogView));
-        }
+        Radio,
+        Traffic,
+        Map
     }
 
-    public bool IsLogView => !_isTrafficView;
+    public bool IsLogView => _view == MainView.Radio;
+    public bool IsTrafficView => _view == MainView.Traffic;
+    public bool IsMapView => _view == MainView.Map;
 
-    public ICommand ShowRadioCommand => new RelayCommand(_ => IsTrafficView = false);
+    private void SelectView(MainView view)
+    {
+        if (_view == view) return;
+        _view = view;
+        OnPropertyChanged(nameof(IsLogView));
+        OnPropertyChanged(nameof(IsTrafficView));
+        OnPropertyChanged(nameof(IsMapView));
+    }
 
-    public ICommand ShowTrafficCommand => new RelayCommand(_ => IsTrafficView = true, _ => _traffic is not null);
+    public ICommand ShowRadioCommand => new RelayCommand(_ => SelectView(MainView.Radio));
+
+    public ICommand ShowTrafficCommand => new RelayCommand(_ => SelectView(MainView.Traffic), _ => _traffic is not null);
+
+    public ICommand ShowMapCommand => new RelayCommand(_ => SelectView(MainView.Map), _ => _traffic is not null);
+
+    public ICommand ZoomInCommand => new RelayCommand(_ => ChangeZoom(-1));
+
+    public ICommand ZoomOutCommand => new RelayCommand(_ => ChangeZoom(1));
+
+    public IReadOnlyList<MapMarker> MapMarkers
+    {
+        get => _mapMarkers;
+        private set => SetProperty(ref _mapMarkers, value);
+    }
+
+    public IReadOnlyList<MapRing> MapRings
+    {
+        get => _mapRings;
+        private set => SetProperty(ref _mapRings, value);
+    }
+
+    public string LabelTabMap => _loc["Ui.TabMap"];
+
+    public string MapRangeText => string.Format(CultureInfo.InvariantCulture, "{0}: {1:F0} nm", _loc["Ui.MapRange"], MapRanges[_mapRangeIndex]);
+
+    /// <summary>Окно сообщает размер области карты в пикселях.</summary>
+    public void SetMapViewport(double width, double height)
+    {
+        _mapWidth = width;
+        _mapHeight = height;
+        RefreshMap();
+    }
+
+    private void ChangeZoom(int step)
+    {
+        var next = Math.Clamp(_mapRangeIndex + step, 0, MapRanges.Length - 1);
+        if (next == _mapRangeIndex) return;
+        _mapRangeIndex = next;
+        OnPropertyChanged(nameof(MapRangeText));
+        RefreshMap();
+    }
+
+    private void RefreshMap()
+    {
+        if (_mapWidth <= 0 || _mapHeight <= 0)
+        {
+            MapMarkers = Array.Empty<MapMarker>();
+            MapRings = Array.Empty<MapRing>();
+            return;
+        }
+
+        var range = MapRanges[_mapRangeIndex];
+        var center = _lastAircraft?.Position ?? _engine.Airport.HoldPoint;
+        var map = new MapProjection(center, range, _mapWidth, _mapHeight);
+        var cx = _mapWidth / 2.0;
+        var cy = _mapHeight / 2.0;
+
+        var rings = new List<MapRing>();
+        foreach (var fraction in new[] { 0.5, 1.0 })
+        {
+            var radius = range * fraction * map.PixelsPerNm;
+            rings.Add(new MapRing(cx - radius, cy - radius, radius * 2,
+                string.Format(CultureInfo.InvariantCulture, "{0:F0} nm", range * fraction), cx, cy - radius));
+        }
+
+        var markers = new List<MapMarker>();
+        if (_traffic is not null)
+        {
+            foreach (var t in _traffic.Targets)
+            {
+                var p = map.Project(t.Position);
+                if (!map.IsVisible(p, 20)) continue;
+                markers.Add(new MapMarker(p.X, p.Y, t.HeadingDeg, t.Callsign,
+                    $"{t.AirlineIcao} · {t.AircraftIcao} · {t.OriginIcao}→{t.DestinationIcao}",
+                    t.OnGround ? MapMarkerKind.Ground : MapMarkerKind.Airborne));
+            }
+        }
+
+        if (_lastAircraft is { } own)
+            markers.Add(new MapMarker(cx, cy, own.HeadingMagneticDeg, _loc["Ui.MapYou"], Callsign, MapMarkerKind.Own));
+
+        MapRings = rings;
+        MapMarkers = markers;
+    }
 
     public IReadOnlyList<TrafficRow> TrafficRows
     {
@@ -162,6 +258,7 @@ public sealed class MainViewModel : ObservableObject
         AdvanceGround(elapsed);
         _traffic?.Advance(elapsed);
         RefreshTraffic();
+        RefreshMap();
     }
 
     private void RefreshTraffic()
@@ -373,6 +470,7 @@ public sealed class MainViewModel : ObservableObject
         EndTalk();
         RefreshGround();
         RefreshTraffic();
+        RefreshMap();
         RebuildQuickActions();
         Lines.Clear();
         foreach (var entry in _log.Entries)
@@ -496,6 +594,7 @@ public sealed class MainViewModel : ObservableObject
     {
         _lastAircraft = state;
         _engine.OnAircraftState(state);
+        RefreshMap();
         if (_cabin is not null)
         {
             foreach (var announcement in _cabin.Update(state))

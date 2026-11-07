@@ -97,4 +97,7 @@
   <data name="Ui.ColAltitude" xml:space="preserve"><value>Altitude</value></data>
   <data name="Ui.ColSpeed" xml:space="preserve"><value>Speed</value></data>
   <data name="Ui.ColDistance" xml:space="preserve"><value>Distance</value></data>
+  <data name="Ui.TabMap" xml:space="preserve"><value>Map</value></data>
+  <data name="Ui.MapRange" xml:space="preserve"><value>Range</value></data>
+  <data name="Ui.MapYou" xml:space="preserve"><value>You</value></data>
 </root>

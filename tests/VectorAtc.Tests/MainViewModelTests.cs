@@ -629,6 +629,85 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void Map_is_empty_until_the_window_reports_its_size()
+    {
+        var (vm, _, _) = TrafficFixture();
+        Assert.Empty(vm.MapMarkers);
+        Assert.Empty(vm.MapRings);
+    }
+
+    [Fact]
+    public void Map_shows_own_aircraft_in_the_centre_and_traffic_with_full_labels()
+    {
+        var (vm, sim, _) = TrafficFixture();
+        vm.ConnectCommand.Execute(null);
+        sim.Push(new AircraftState(MockScenarios.TestAirport.HoldPoint, 0, 270, 0, 0, true, 118100, 121500));
+        vm.SetMapViewport(800, 600);
+
+        var own = vm.MapMarkers.Single(m => m.Kind == MapMarkerKind.Own);
+        Assert.Equal(400, own.X);
+        Assert.Equal(300, own.Y);
+        Assert.Equal(270, own.HeadingDeg);
+        Assert.Equal("You", own.Title);
+
+        var parked = vm.MapMarkers.Single(m => m.Title == "AFL2127");
+        Assert.Equal(MapMarkerKind.Ground, parked.Kind);
+        Assert.Equal("AFL · SU95 · UUEE→ULLI", parked.Subtitle);
+
+        var uta = vm.MapMarkers.Single(m => m.Title == "UTA611");     // в 30 милях к северу, курс 190
+        Assert.Equal(MapMarkerKind.Airborne, uta.Kind);
+        Assert.Equal(190, uta.HeadingDeg);
+        Assert.True(uta.Y < 300);                                    // севернее: выше центра
+    }
+
+    [Fact]
+    public void Map_before_first_aircraft_data_is_centred_on_the_airport()
+    {
+        var (vm, _, _) = TrafficFixture();
+        vm.SetMapViewport(800, 600);
+        Assert.DoesNotContain(MapMarkerKind.Own, vm.MapMarkers.Select(m => m.Kind));
+        var parked = vm.MapMarkers.Single(m => m.Title == "AFL2127");
+        Assert.True(Math.Abs(parked.X - 400) < 10 && Math.Abs(parked.Y - 300) < 10);   // 0,2–0,3 мили от центра
+    }
+
+    [Fact]
+    public void Zoom_changes_range_rings_and_hides_far_traffic()
+    {
+        var (vm, _, _) = TrafficFixture();
+        vm.SetMapViewport(800, 600);
+        Assert.Equal("Range: 40 nm", vm.MapRangeText);
+        var wide = vm.MapMarkers.Count;
+        Assert.Equal("40 nm", vm.MapRings[^1].Label);
+        Assert.Equal("20 nm", vm.MapRings[0].Label);
+
+        vm.ZoomInCommand.Execute(null);
+        vm.ZoomInCommand.Execute(null);   // 10 миль
+
+        Assert.Equal("Range: 10 nm", vm.MapRangeText);
+        Assert.True(vm.MapMarkers.Count < wide);
+        Assert.Equal("10 nm", vm.MapRings[^1].Label);
+
+        for (var i = 0; i < 10; i++) vm.ZoomInCommand.Execute(null);   // ниже минимума не уходит
+        Assert.Equal("Range: 10 nm", vm.MapRangeText);
+        for (var i = 0; i < 10; i++) vm.ZoomOutCommand.Execute(null);
+        Assert.Equal("Range: 160 nm", vm.MapRangeText);
+    }
+
+    [Fact]
+    public void Map_tab_switches_view_and_labels_are_translated()
+    {
+        var (vm, _, _) = TrafficFixture();
+        vm.ShowMapCommand.Execute(null);
+        Assert.True(vm.IsMapView);
+        Assert.False(vm.IsLogView);
+        Assert.False(vm.IsTrafficView);
+
+        vm.ToggleLanguageCommand.Execute(null);
+        Assert.Equal("Карта", vm.LabelTabMap);
+        Assert.Equal("Дальность: 40 nm", vm.MapRangeText);
+    }
+
+    [Fact]
     public void Status_without_demo_source_says_connected_to_simulator()
     {
         var loc = new LocalizationService();

@@ -97,4 +97,7 @@
   <data name="Ui.ColAltitude" xml:space="preserve"><value>Высота</value></data>
   <data name="Ui.ColSpeed" xml:space="preserve"><value>Скорость</value></data>
   <data name="Ui.ColDistance" xml:space="preserve"><value>Дистанция</value></data>
+  <data name="Ui.TabMap" xml:space="preserve"><value>Карта</value></data>
+  <data name="Ui.MapRange" xml:space="preserve"><value>Дальность</value></data>
+  <data name="Ui.MapYou" xml:space="preserve"><value>Вы</value></data>
 </root>

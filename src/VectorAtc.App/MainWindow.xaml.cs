@@ -34,6 +34,10 @@ public partial class MainWindow : Window
         TalkButton.PreviewMouseLeftButtonUp += (_, _) => (DataContext as MainViewModel)?.EndTalk();
         TalkButton.LostMouseCapture += (_, _) => (DataContext as MainViewModel)?.EndTalk();
 
+        // Размер области карты сообщаем модели: по нему считаются положения значков.
+        MapHost.SizeChanged += (_, e) => (DataContext as MainViewModel)?.SetMapViewport(e.NewSize.Width, e.NewSize.Height);
+        Loaded += (_, _) => (DataContext as MainViewModel)?.SetMapViewport(MapHost.ActualWidth, MapHost.ActualHeight);
+
         // Таймер двигает наземные услуги раз в секунду.
         var last = DateTime.UtcNow;
         var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
