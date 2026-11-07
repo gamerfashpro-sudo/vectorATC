@@ -18,7 +18,7 @@ public partial class VectorApplication : Application
     {
         base.OnStartup(e);
 
-        var settingsStore = new JsonSettingsStore(Path.Combine(
+        var settingsStore = new JsonSettingsStore(System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VectorATC", "settings.json"));
         var saved = settingsStore.Load();
 
