@@ -12,7 +12,7 @@
   <data name="PushbackApproved.Us" xml:space="preserve"><value>{callsign}, pushback at your discretion</value></data>
   <data name="SayAgainRequest.Icao" xml:space="preserve"><value>{callsign}, say again</value></data>
   <data name="SayAgainRequest.Us" xml:space="preserve"><value>{callsign}, say again</value></data>
-  <data name="ReadbackCorrect.Icao" xml:space="preserve"><value>{callsign}, readback correct</value></data>
+  <data name="ReadbackCorrect.Icao" xml:space="preserve"><value>{callsign}, correct</value></data>
   <data name="ReadbackCorrect.Us" xml:space="preserve"><value>{callsign}, readback correct</value></data>
   <data name="ReadbackIncorrect.Icao" xml:space="preserve"><value>{callsign}, negative, I say again</value></data>
   <data name="ReadbackIncorrect.Us" xml:space="preserve"><value>{callsign}, negative, I say again</value></data>
@@ -24,6 +24,6 @@
   <data name="UnknownStation.Us" xml:space="preserve"><value>Station calling, say again</value></data>
   <data name="Unable.Icao" xml:space="preserve"><value>{callsign}, unable</value></data>
   <data name="Unable.Us" xml:space="preserve"><value>{callsign}, unable</value></data>
-  <data name="EmergencyAcknowledge.Icao" xml:space="preserve"><value>{callsign}, roger mayday, say intentions</value></data>
+  <data name="EmergencyAcknowledge.Icao" xml:space="preserve"><value>{callsign}, roger mayday</value></data>
   <data name="EmergencyAcknowledge.Us" xml:space="preserve"><value>{callsign}, roger mayday, say intentions</value></data>
 </root>

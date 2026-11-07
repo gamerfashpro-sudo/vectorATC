@@ -41,7 +41,7 @@ public class ControllerEngineTests
             Join(engine.HandlePilotMessage("N172SP request taxi")));
         Assert.Equal(FlightState.TaxiClearanceIssued, engine.State);
 
-        Assert.Equal("N172SP, readback correct", Join(engine.HandlePilotMessage(GoodReadback)));
+        Assert.Equal("N172SP, correct", Join(engine.HandlePilotMessage(GoodReadback)));
         Assert.Equal(FlightState.Taxiing, engine.State);
         Assert.Equal(ControllerPhase.Ground, engine.Phase);
 
@@ -210,6 +210,14 @@ public class ControllerEngineTests
     public void Emergency_is_acknowledged_in_any_state()
     {
         var (engine, _) = Create();
+        engine.HandlePilotMessage("N172SP request taxi");
+        Assert.Equal("N172SP, roger mayday", Join(engine.HandlePilotMessage("Mayday N172SP")));
+    }
+
+    [Fact]
+    public void Us_style_keeps_its_own_readback_and_mayday_wording()
+    {
+        var (engine, _) = Create(PhraseStyle.Us);
         engine.HandlePilotMessage("N172SP request taxi");
         Assert.Equal("N172SP, roger mayday, say intentions", Join(engine.HandlePilotMessage("Mayday N172SP")));
     }

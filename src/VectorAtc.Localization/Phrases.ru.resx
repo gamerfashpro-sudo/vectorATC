@@ -24,6 +24,6 @@
   <data name="UnknownStation.Us" xml:space="preserve"><value>Вызывающая станция, повторите</value></data>
   <data name="Unable.Icao" xml:space="preserve"><value>{callsign}, выполнить не могу</value></data>
   <data name="Unable.Us" xml:space="preserve"><value>{callsign}, выполнить не могу</value></data>
-  <data name="EmergencyAcknowledge.Icao" xml:space="preserve"><value>{callsign}, принял бедствие, сообщите намерения</value></data>
+  <data name="EmergencyAcknowledge.Icao" xml:space="preserve"><value>{callsign}, принял бедствие</value></data>
   <data name="EmergencyAcknowledge.Us" xml:space="preserve"><value>{callsign}, принял бедствие, сообщите намерения</value></data>
 </root>
