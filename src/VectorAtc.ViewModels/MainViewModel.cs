@@ -11,6 +11,7 @@ using VectorAtc.Core.Traffic;
 using VectorAtc.Core.Speech;
 using VectorAtc.Core.Models;
 using VectorAtc.Core.Phraseology;
+using VectorAtc.Core.Settings;
 using VectorAtc.Localization;
 
 namespace VectorAtc.ViewModels;
@@ -42,6 +43,8 @@ public sealed class MainViewModel : ObservableObject
     private readonly IGroundServicesProvider? _ground;
     private readonly ITrafficSource? _traffic;
     private readonly DiagnosticsBuilder _diagnostics;
+    private readonly ISettingsStore? _settings;
+    private bool _applyingSettings;
     private IReadOnlyList<DiagnosticsItem> _diagnosticsItems = Array.Empty<DiagnosticsItem>();
     private IReadOnlyList<TrafficRow> _trafficRows = Array.Empty<TrafficRow>();
     private MainView _view = MainView.Radio;
@@ -66,7 +69,7 @@ public sealed class MainViewModel : ObservableObject
         Func<bool>? advanceDemoFrame = null, Func<ISimDataSource>? realSimFactory = null, CabinAnnouncer? cabin = null,
         ISpeechOutput? speech = null, ISpeechInput? listener = null,
         IGroundServicesProvider? ground = null, ITrafficSource? traffic = null,
-        DiagnosticsBuilder? diagnostics = null)
+        DiagnosticsBuilder? diagnostics = null, ISettingsStore? settings = null)
     {
         _loc = loc ?? throw new ArgumentNullException(nameof(loc));
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
@@ -81,6 +84,8 @@ public sealed class MainViewModel : ObservableObject
         _ground = ground;
         _traffic = traffic;
         _diagnostics = diagnostics ?? new DiagnosticsBuilder(_loc);
+        _settings = settings;
+        ApplySavedSettings();
         RefreshTraffic();
         if (_ground is not null)
         {
@@ -218,6 +223,7 @@ public sealed class MainViewModel : ObservableObject
         var next = Math.Clamp(_mapRangeIndex + step, 0, MapRanges.Length - 1);
         if (next == _mapRangeIndex) return;
         _mapRangeIndex = next;
+        SaveSettings();
         OnPropertyChanged(nameof(MapRangeText));
         RefreshMap();
     }
@@ -378,7 +384,42 @@ public sealed class MainViewModel : ObservableObject
     public string Callsign
     {
         get => _callsign;
-        set => SetProperty(ref _callsign, value ?? "");
+        set
+        {
+            if (SetProperty(ref _callsign, value ?? ""))
+                SaveSettings();
+        }
+    }
+
+    /// <summary>Язык и стиль фразеологии применяет приложение до создания модели; здесь возвращаем остальное.</summary>
+    private void ApplySavedSettings()
+    {
+        if (_settings is null) return;
+        _applyingSettings = true;
+        try
+        {
+            var s = _settings.Load();
+            if (!string.IsNullOrWhiteSpace(s.Callsign)) _callsign = s.Callsign.Trim();
+            if (s.VoiceEnabled is { } voice) _voiceEnabled = voice;
+            if (s.MapRangeNm is { } range)
+            {
+                var best = 0;
+                for (var i = 1; i < MapRanges.Length; i++)
+                    if (Math.Abs(MapRanges[i] - range) < Math.Abs(MapRanges[best] - range)) best = i;
+                _mapRangeIndex = best;
+            }
+        }
+        finally
+        {
+            _applyingSettings = false;
+        }
+    }
+
+    private void SaveSettings()
+    {
+        if (_settings is null || _applyingSettings) return;
+        _settings.Save(new UserSettings(
+            _loc.Culture.TwoLetterISOLanguageName, _engine.Style.ToString(), _callsign, _voiceEnabled, MapRanges[_mapRangeIndex]));
     }
 
     public string InputText
@@ -493,11 +534,13 @@ public sealed class MainViewModel : ObservableObject
     {
         _engine.Style = _engine.Style == PhraseStyle.Icao ? PhraseStyle.Us : PhraseStyle.Icao;
         OnPropertyChanged(nameof(StyleButtonText));
+        SaveSettings();
     }
 
     private void OnLanguageChanged()
     {
         _engine.Culture = _loc.Culture;
+        SaveSettings();
         _speech?.Stop();
         EndTalk();
         RefreshGround();
@@ -571,6 +614,7 @@ public sealed class MainViewModel : ObservableObject
     private void ToggleVoice()
     {
         _voiceEnabled = !_voiceEnabled;
+        SaveSettings();
         if (!_voiceEnabled)
             _speech?.Stop();
         OnPropertyChanged(nameof(VoiceButtonText));

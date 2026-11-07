@@ -1,6 +1,7 @@
 using System.Globalization;
 using VectorAtc.Core.Speech;
 using VectorAtc.Core.Controller;
+using VectorAtc.Core.Settings;
 using VectorAtc.Core.Traffic;
 using VectorAtc.Core.Ground;
 using VectorAtc.Core.Models;
@@ -732,6 +733,73 @@ public class MainViewModelTests
         f.Vm.ConnectCommand.Execute(null);
 
         Assert.Contains(f.Vm.DiagnosticsItems, i => i.Label == "Connection" && i.Value == "connected");
+    }
+
+    private sealed class FakeSettings : ISettingsStore
+    {
+        public UserSettings Stored { get; set; } = new();
+        public List<UserSettings> Saves { get; } = new();
+
+        public UserSettings Load() => Stored;
+
+        public bool Save(UserSettings settings)
+        {
+            Saves.Add(settings);
+            Stored = settings;
+            return true;
+        }
+    }
+
+    private static (MainViewModel Vm, FakeSettings Store) SettingsFixture(UserSettings? initial = null)
+    {
+        var loc = new LocalizationService();
+        var log = new ExchangeLog();
+        var store = new FakeSettings { Stored = initial ?? new UserSettings() };
+        var engine = new ControllerEngine(new PhraseBook(), MockScenarios.TestAirport, PhraseStyle.Icao, loc.Culture, log);
+        var vm = new MainViewModel(loc, engine, log, new MockSimDataSource(), null, null, null, null, null, null, new SimulatedTraffic(MockScenarios.TestAirport.HoldPoint), null, store);
+        return (vm, store);
+    }
+
+    [Fact]
+    public void Saved_callsign_voice_and_map_range_are_restored_without_writing_back()
+    {
+        var (vm, store) = SettingsFixture(new UserSettings(Callsign: "RA-12345", VoiceEnabled: false, MapRangeNm: 80));
+
+        Assert.Equal("RA-12345", vm.Callsign);
+        Assert.Equal("Range: 80 nm", vm.MapRangeText);
+        Assert.Empty(store.Saves);
+    }
+
+    [Fact]
+    public void Saved_map_range_snaps_to_the_nearest_available_step()
+    {
+        var (vm, _) = SettingsFixture(new UserSettings(MapRangeNm: 95));
+        Assert.Equal("Range: 80 nm", vm.MapRangeText);
+    }
+
+    [Fact]
+    public void Changes_are_saved_language_style_callsign_zoom()
+    {
+        var (vm, store) = SettingsFixture();
+
+        vm.ToggleLanguageCommand.Execute(null);
+        Assert.Equal("ru", store.Stored.Language);
+
+        vm.ToggleStyleCommand.Execute(null);
+        Assert.Equal("Us", store.Stored.Style);
+
+        vm.Callsign = "UUEE-1";
+        Assert.Equal("UUEE-1", store.Stored.Callsign);
+
+        vm.ZoomInCommand.Execute(null);
+        Assert.Equal(20, store.Stored.MapRangeNm);
+    }
+
+    [Fact]
+    public void Blank_saved_callsign_keeps_the_default()
+    {
+        var (vm, _) = SettingsFixture(new UserSettings(Callsign: "  "));
+        Assert.Equal("N172SP", vm.Callsign);
     }
 
     [Fact]
