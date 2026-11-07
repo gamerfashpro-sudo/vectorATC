@@ -1,6 +1,7 @@
 using System.Globalization;
 using VectorAtc.Core.Speech;
 using VectorAtc.Core.Controller;
+using VectorAtc.Core.Traffic;
 using VectorAtc.Core.Ground;
 using VectorAtc.Core.Models;
 using VectorAtc.Core.Flight;
@@ -543,6 +544,88 @@ public class MainViewModelTests
         Assert.Equal("This service cannot be started right now.",
             vm.Lines.Single(l => l.Kind == LogSource.Violation).Text);
         Assert.Equal("Not ordered", vm.GroundServices[4].StateText);
+    }
+
+    private static (MainViewModel Vm, MockSimDataSource Sim, SimulatedTraffic Traffic) TrafficFixture()
+    {
+        var loc = new LocalizationService();
+        var log = new ExchangeLog();
+        var sim = new MockSimDataSource();
+        var engine = new ControllerEngine(new PhraseBook(), MockScenarios.TestAirport, PhraseStyle.Icao, loc.Culture, log);
+        var traffic = new SimulatedTraffic(MockScenarios.TestAirport.HoldPoint);
+        var vm = new MainViewModel(loc, engine, log, sim, null, null, null, null, null, null, traffic);
+        return (vm, sim, traffic);
+    }
+
+    [Fact]
+    public void Traffic_table_shows_airline_type_route_and_formatted_altitude()
+    {
+        var (vm, _, _) = TrafficFixture();
+        Assert.Equal(8, vm.TrafficRows.Count);
+
+        var afl = vm.TrafficRows.Single(r => r.Callsign == "AFL1432");
+        Assert.Equal("AFL", afl.Airline);
+        Assert.Equal("A320", afl.Aircraft);
+        Assert.Equal("UUEE → ULLI", afl.Route);
+        Assert.Equal("FL240", afl.Altitude);
+        Assert.Equal("430 kt", afl.Speed);
+        Assert.Equal("—", afl.Distance);
+        Assert.Equal("15000 ft", vm.TrafficRows.Single(r => r.Callsign == "UTA611").Altitude);
+        Assert.Equal("GND", vm.TrafficRows.Single(r => r.Callsign == "AFL2127").Altitude);
+    }
+
+    [Fact]
+    public void Traffic_is_sorted_by_distance_from_own_aircraft_once_known()
+    {
+        var (vm, sim, _) = TrafficFixture();
+        vm.ConnectCommand.Execute(null);
+        var hold = MockScenarios.TestAirport.HoldPoint;
+        sim.Push(new AircraftState(hold, 0, 270, 0, 0, true, 118100, 121500));
+        vm.Tick(TimeSpan.Zero);
+
+        Assert.Equal("AFL2127", vm.TrafficRows[0].Callsign);   // стоит рядом на земле
+        Assert.EndsWith(" nm", vm.TrafficRows[0].Distance);
+        var distances = vm.TrafficRows.Select(r => double.Parse(r.Distance.Replace(" nm", ""), CultureInfo.InvariantCulture)).ToList();
+        Assert.Equal(distances.OrderBy(d => d).ToList(), distances);
+    }
+
+    [Fact]
+    public void Tick_moves_traffic_and_table_distance_changes()
+    {
+        var (vm, sim, _) = TrafficFixture();
+        vm.ConnectCommand.Execute(null);
+        sim.Push(new AircraftState(MockScenarios.TestAirport.HoldPoint, 0, 270, 0, 0, true, 118100, 121500));
+        vm.Tick(TimeSpan.Zero);
+        var before = vm.TrafficRows.Single(r => r.Callsign == "DLH846").Distance;   // летит на восток, к нам
+
+        vm.Tick(TimeSpan.FromMinutes(5));
+
+        Assert.NotEqual(before, vm.TrafficRows.Single(r => r.Callsign == "DLH846").Distance);
+    }
+
+    [Fact]
+    public void Tabs_switch_between_radio_and_traffic_views()
+    {
+        var (vm, _, _) = TrafficFixture();
+        Assert.True(vm.IsLogView);
+        Assert.False(vm.IsTrafficView);
+
+        vm.ShowTrafficCommand.Execute(null);
+        Assert.True(vm.IsTrafficView);
+        Assert.False(vm.IsLogView);
+
+        vm.ShowRadioCommand.Execute(null);
+        Assert.True(vm.IsLogView);
+    }
+
+    [Fact]
+    public void Traffic_labels_are_translated()
+    {
+        var (vm, _, _) = TrafficFixture();
+        Assert.Equal("Traffic", vm.LabelTabTraffic);
+        vm.ToggleLanguageCommand.Execute(null);
+        Assert.Equal("Трафик", vm.LabelTabTraffic);
+        Assert.Equal("Маршрут", vm.LabelColRoute);
     }
 
     [Fact]

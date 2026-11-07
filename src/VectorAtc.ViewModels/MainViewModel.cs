@@ -5,6 +5,7 @@ using VectorAtc.Core.Abstractions;
 using VectorAtc.Core.Controller;
 using VectorAtc.Core.Flight;
 using VectorAtc.Core.Ground;
+using VectorAtc.Core.Traffic;
 using VectorAtc.Core.Speech;
 using VectorAtc.Core.Models;
 using VectorAtc.Core.Phraseology;
@@ -37,6 +38,9 @@ public sealed class MainViewModel : ObservableObject
     private bool _voiceEnabled = true;
     private readonly ISpeechInput? _listener;
     private readonly IGroundServicesProvider? _ground;
+    private readonly ITrafficSource? _traffic;
+    private IReadOnlyList<TrafficRow> _trafficRows = Array.Empty<TrafficRow>();
+    private bool _isTrafficView;
     private bool _isListening;
     private readonly Func<bool>? _advanceDemoFrame;
     private readonly RelayCommand _sendCommand;
@@ -52,7 +56,7 @@ public sealed class MainViewModel : ObservableObject
         ILocalizationService loc, ControllerEngine engine, ExchangeLog log, ISimDataSource sim,
         Func<bool>? advanceDemoFrame = null, Func<ISimDataSource>? realSimFactory = null, CabinAnnouncer? cabin = null,
         ISpeechOutput? speech = null, ISpeechInput? listener = null,
-        IGroundServicesProvider? ground = null)
+        IGroundServicesProvider? ground = null, ITrafficSource? traffic = null)
     {
         _loc = loc ?? throw new ArgumentNullException(nameof(loc));
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
@@ -65,6 +69,8 @@ public sealed class MainViewModel : ObservableObject
         _speech = speech;
         _listener = listener;
         _ground = ground;
+        _traffic = traffic;
+        RefreshTraffic();
         if (_ground is not null)
         {
             foreach (var status in _ground.Statuses)
@@ -113,6 +119,73 @@ public sealed class MainViewModel : ObservableObject
     public ObservableCollection<GroundServiceItem> GroundServices { get; } = new();
 
     public bool IsGroundVisible => _ground is not null;
+
+    public bool IsTabsVisible => _traffic is not null;
+
+    public bool IsTrafficView
+    {
+        get => _isTrafficView;
+        private set
+        {
+            if (!SetProperty(ref _isTrafficView, value)) return;
+            OnPropertyChanged(nameof(IsLogView));
+        }
+    }
+
+    public bool IsLogView => !_isTrafficView;
+
+    public ICommand ShowRadioCommand => new RelayCommand(_ => IsTrafficView = false);
+
+    public ICommand ShowTrafficCommand => new RelayCommand(_ => IsTrafficView = true, _ => _traffic is not null);
+
+    public IReadOnlyList<TrafficRow> TrafficRows
+    {
+        get => _trafficRows;
+        private set => SetProperty(ref _trafficRows, value);
+    }
+
+    public string LabelTabRadio => _loc["Ui.TabRadio"];
+    public string LabelTabTraffic => _loc["Ui.TabTraffic"];
+    public string LabelTrafficTitle => _loc["Ui.TrafficTitle"];
+    public string LabelTrafficNote => _loc["Ui.TrafficNote"];
+    public string LabelColCallsign => _loc["Ui.ColCallsign"];
+    public string LabelColAirline => _loc["Ui.ColAirline"];
+    public string LabelColType => _loc["Ui.ColType"];
+    public string LabelColRoute => _loc["Ui.ColRoute"];
+    public string LabelColAltitude => _loc["Ui.ColAltitude"];
+    public string LabelColSpeed => _loc["Ui.ColSpeed"];
+    public string LabelColDistance => _loc["Ui.ColDistance"];
+
+    /// <summary>Один шаг времени для всего, что движется само: услуги и трафик (вызывается таймером окна).</summary>
+    public void Tick(TimeSpan elapsed)
+    {
+        AdvanceGround(elapsed);
+        _traffic?.Advance(elapsed);
+        RefreshTraffic();
+    }
+
+    private void RefreshTraffic()
+    {
+        if (_traffic is null) return;
+        var own = _lastAircraft?.Position;
+        var rows = _traffic.Targets
+            .Select(t => (Target: t, DistanceNm: own is { } o ? VectorAtc.Core.Geo.Geo.DistanceMeters(o, t.Position) / 1852.0 : (double?)null))
+            .OrderBy(x => x.DistanceNm ?? double.MaxValue)
+            .ThenBy(x => x.Target.Callsign, StringComparer.Ordinal)
+            .Select(x => new TrafficRow(
+                x.Target.Callsign, x.Target.AirlineIcao, x.Target.AircraftIcao,
+                x.Target.OriginIcao + " → " + x.Target.DestinationIcao,
+                FormatAltitude(x.Target),
+                string.Format(CultureInfo.InvariantCulture, "{0:F0} kt", x.Target.GroundSpeedKnots),
+                x.DistanceNm is null ? "—" : string.Format(CultureInfo.InvariantCulture, "{0:F0} nm", x.DistanceNm)))
+            .ToList();
+        TrafficRows = rows;
+    }
+
+    private static string FormatAltitude(TrafficTarget t) =>
+        t.OnGround ? "GND"
+        : t.AltitudeFeet >= 18000 ? string.Format(CultureInfo.InvariantCulture, "FL{0:000}", t.AltitudeFeet / 100)
+        : string.Format(CultureInfo.InvariantCulture, "{0:F0} ft", t.AltitudeFeet);
 
     public string LabelGround => _loc["Ui.GroundCaption"];
 
@@ -299,6 +372,7 @@ public sealed class MainViewModel : ObservableObject
         _speech?.Stop();
         EndTalk();
         RefreshGround();
+        RefreshTraffic();
         RebuildQuickActions();
         Lines.Clear();
         foreach (var entry in _log.Entries)

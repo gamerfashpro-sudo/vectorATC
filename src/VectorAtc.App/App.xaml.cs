@@ -3,6 +3,7 @@ using System.Windows;
 using VectorAtc.Core.Controller;
 using VectorAtc.Core.Flight;
 using VectorAtc.Core.Ground;
+using VectorAtc.Core.Traffic;
 using VectorAtc.Core.Phraseology;
 using VectorAtc.Localization;
 using VectorAtc.SimLink;
@@ -29,7 +30,8 @@ public partial class VectorApplication : Application
         var viewModel = new MainViewModel(
             localization, engine, log, sim, () => sim.Advance(), () => new SimConnectDataSource(), new CabinAnnouncer(), new VectorAtc.App.Speech.WindowsSpeechOutput(),
             new VectorAtc.App.Speech.WindowsSpeechInput(),
-            new SimulatedGroundServices());
+            new SimulatedGroundServices(),
+            new SimulatedTraffic(MockScenarios.TestAirport.HoldPoint));
 
         new MainWindow { DataContext = viewModel }.Show();
     }

@@ -40,7 +40,7 @@ public partial class MainWindow : Window
         timer.Tick += (_, _) =>
         {
             var now = DateTime.UtcNow;
-            (DataContext as MainViewModel)?.AdvanceGround(now - last);
+            (DataContext as MainViewModel)?.Tick(now - last);
             last = now;
         };
         timer.Start();

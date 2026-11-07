@@ -37,6 +37,13 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="1">
+                    <StackPanel Margin="0,0,0,22"
+                                Visibility="{Binding IsTabsVisible, Converter={StaticResource BoolToVisibility}}">
+                        <Button Content="{Binding LabelTabRadio}" Command="{Binding ShowRadioCommand}"
+                                HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                        <Button Content="{Binding LabelTabTraffic}" Command="{Binding ShowTrafficCommand}"
+                                HorizontalAlignment="Stretch" Margin="0,0,0,0"/>
+                    </StackPanel>
                     <TextBlock Text="{Binding LabelCallsign}" Style="{StaticResource Caption}"/>
                     <TextBox Text="{Binding Callsign, UpdateSourceTrigger=PropertyChanged}"
                              FontFamily="Consolas" FontSize="15" Margin="0,0,0,18"/>
@@ -85,7 +92,8 @@
                     </Border>
                 </Grid>
 
-                <ScrollViewer Grid.Row="1" x:Name="LogScroll" VerticalScrollBarVisibility="Auto" Margin="0,0,-8,0">
+                <ScrollViewer Grid.Row="1" x:Name="LogScroll" VerticalScrollBarVisibility="Auto" Margin="0,0,-8,0"
+                              Visibility="{Binding IsLogView, Converter={StaticResource BoolToVisibility}}">
                     <ItemsControl ItemsSource="{Binding Lines}" Margin="0,0,8,0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -140,7 +148,8 @@
                     </ItemsControl>
                 </ScrollViewer>
 
-                <ItemsControl Grid.Row="2" ItemsSource="{Binding QuickActions}" Margin="0,12,0,4">
+                <ItemsControl Grid.Row="2" ItemsSource="{Binding QuickActions}" Margin="0,12,0,4"
+                              Visibility="{Binding IsLogView, Converter={StaticResource BoolToVisibility}}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel/>
@@ -153,7 +162,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <Grid Grid.Row="3">
+                <Grid Grid.Row="3" Visibility="{Binding IsLogView, Converter={StaticResource BoolToVisibility}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
@@ -185,6 +194,66 @@
                     <Button Grid.Column="2" Style="{StaticResource PrimaryButton}"
                             Content="{Binding LabelSend}" Command="{Binding SendCommand}"
                             Margin="10,0,0,0" Padding="24,11"/>
+                </Grid>
+
+                <!-- Таблица трафика: занимает место журнала, быстрых кнопок и ввода -->
+                <Grid Grid.Row="1" Grid.RowSpan="3"
+                      Visibility="{Binding IsTrafficView, Converter={StaticResource BoolToVisibility}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="{Binding LabelTrafficNote}" Foreground="{StaticResource Warn}"
+                               FontSize="12" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                    <Grid Grid.Row="1" Margin="12,0,12,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.3*"/>
+                            <ColumnDefinition Width="0.7*"/>
+                            <ColumnDefinition Width="0.8*"/>
+                            <ColumnDefinition Width="1.6*"/>
+                            <ColumnDefinition Width="1.1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding LabelColCallsign}" Style="{StaticResource Caption}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LabelColAirline}" Style="{StaticResource Caption}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding LabelColType}" Style="{StaticResource Caption}"/>
+                        <TextBlock Grid.Column="3" Text="{Binding LabelColRoute}" Style="{StaticResource Caption}"/>
+                        <TextBlock Grid.Column="4" Text="{Binding LabelColAltitude}" Style="{StaticResource Caption}"/>
+                        <TextBlock Grid.Column="5" Text="{Binding LabelColSpeed}" Style="{StaticResource Caption}"/>
+                        <TextBlock Grid.Column="6" Text="{Binding LabelColDistance}" Style="{StaticResource Caption}"/>
+                    </Grid>
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding TrafficRows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource ControllerBubble}" CornerRadius="12"
+                                            Padding="12,9" Margin="0,3">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1.3*"/>
+                                                <ColumnDefinition Width="0.7*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="1.6*"/>
+                                                <ColumnDefinition Width="1.1*"/>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="1*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Callsign}" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource Accent}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Airline}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Aircraft}"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding Route}" FontFamily="Consolas"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding Altitude}" FontFamily="Consolas"/>
+                                            <TextBlock Grid.Column="5" Text="{Binding Speed}" FontFamily="Consolas"/>
+                                            <TextBlock Grid.Column="6" Text="{Binding Distance}" FontFamily="Consolas"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </Grid>
         </Border>

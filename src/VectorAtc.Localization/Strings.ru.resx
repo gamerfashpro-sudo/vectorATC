@@ -86,4 +86,15 @@
   <data name="Ground.Done.Baggage" xml:space="preserve"><value>Багаж загружен.</value></data>
   <data name="Ground.Started.Deboarding" xml:space="preserve"><value>Высадка пассажиров началась.</value></data>
   <data name="Ground.Done.Deboarding" xml:space="preserve"><value>Высадка пассажиров завершена.</value></data>
+  <data name="Ui.TabRadio" xml:space="preserve"><value>Эфир</value></data>
+  <data name="Ui.TabTraffic" xml:space="preserve"><value>Трафик</value></data>
+  <data name="Ui.TrafficTitle" xml:space="preserve"><value>Трафик вокруг</value></data>
+  <data name="Ui.TrafficNote" xml:space="preserve"><value>Демо-данные: имитированные рейсы, не реальный трафик.</value></data>
+  <data name="Ui.ColCallsign" xml:space="preserve"><value>Позывной</value></data>
+  <data name="Ui.ColAirline" xml:space="preserve"><value>А/к</value></data>
+  <data name="Ui.ColType" xml:space="preserve"><value>Тип</value></data>
+  <data name="Ui.ColRoute" xml:space="preserve"><value>Маршрут</value></data>
+  <data name="Ui.ColAltitude" xml:space="preserve"><value>Высота</value></data>
+  <data name="Ui.ColSpeed" xml:space="preserve"><value>Скорость</value></data>
+  <data name="Ui.ColDistance" xml:space="preserve"><value>Дистанция</value></data>
 </root>

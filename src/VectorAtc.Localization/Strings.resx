@@ -86,4 +86,15 @@
   <data name="Ground.Done.Baggage" xml:space="preserve"><value>Baggage loaded.</value></data>
   <data name="Ground.Started.Deboarding" xml:space="preserve"><value>Deboarding started.</value></data>
   <data name="Ground.Done.Deboarding" xml:space="preserve"><value>Deboarding complete.</value></data>
+  <data name="Ui.TabRadio" xml:space="preserve"><value>Radio</value></data>
+  <data name="Ui.TabTraffic" xml:space="preserve"><value>Traffic</value></data>
+  <data name="Ui.TrafficTitle" xml:space="preserve"><value>Traffic nearby</value></data>
+  <data name="Ui.TrafficNote" xml:space="preserve"><value>Demo data: simulated flights, not real traffic.</value></data>
+  <data name="Ui.ColCallsign" xml:space="preserve"><value>Callsign</value></data>
+  <data name="Ui.ColAirline" xml:space="preserve"><value>Airline</value></data>
+  <data name="Ui.ColType" xml:space="preserve"><value>Type</value></data>
+  <data name="Ui.ColRoute" xml:space="preserve"><value>Route</value></data>
+  <data name="Ui.ColAltitude" xml:space="preserve"><value>Altitude</value></data>
+  <data name="Ui.ColSpeed" xml:space="preserve"><value>Speed</value></data>
+  <data name="Ui.ColDistance" xml:space="preserve"><value>Distance</value></data>
 </root>
