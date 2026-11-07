@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows.Input;
 using VectorAtc.Core.Abstractions;
 using VectorAtc.Core.Controller;
+using VectorAtc.Core.Diagnostics;
 using VectorAtc.Core.Flight;
 using VectorAtc.Core.Geo;
 using VectorAtc.Core.Ground;
@@ -40,6 +41,8 @@ public sealed class MainViewModel : ObservableObject
     private readonly ISpeechInput? _listener;
     private readonly IGroundServicesProvider? _ground;
     private readonly ITrafficSource? _traffic;
+    private readonly DiagnosticsBuilder _diagnostics;
+    private IReadOnlyList<DiagnosticsItem> _diagnosticsItems = Array.Empty<DiagnosticsItem>();
     private IReadOnlyList<TrafficRow> _trafficRows = Array.Empty<TrafficRow>();
     private MainView _view = MainView.Radio;
     private static readonly double[] MapRanges = { 10, 20, 40, 80, 160 };
@@ -62,7 +65,8 @@ public sealed class MainViewModel : ObservableObject
         ILocalizationService loc, ControllerEngine engine, ExchangeLog log, ISimDataSource sim,
         Func<bool>? advanceDemoFrame = null, Func<ISimDataSource>? realSimFactory = null, CabinAnnouncer? cabin = null,
         ISpeechOutput? speech = null, ISpeechInput? listener = null,
-        IGroundServicesProvider? ground = null, ITrafficSource? traffic = null)
+        IGroundServicesProvider? ground = null, ITrafficSource? traffic = null,
+        DiagnosticsBuilder? diagnostics = null)
     {
         _loc = loc ?? throw new ArgumentNullException(nameof(loc));
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
@@ -76,6 +80,7 @@ public sealed class MainViewModel : ObservableObject
         _listener = listener;
         _ground = ground;
         _traffic = traffic;
+        _diagnostics = diagnostics ?? new DiagnosticsBuilder(_loc);
         RefreshTraffic();
         if (_ground is not null)
         {
@@ -126,18 +131,20 @@ public sealed class MainViewModel : ObservableObject
 
     public bool IsGroundVisible => _ground is not null;
 
-    public bool IsTabsVisible => _traffic is not null;
+    public bool IsTabsVisible => true;
 
     private enum MainView
     {
         Radio,
         Traffic,
-        Map
+        Map,
+        Diagnostics
     }
 
     public bool IsLogView => _view == MainView.Radio;
     public bool IsTrafficView => _view == MainView.Traffic;
     public bool IsMapView => _view == MainView.Map;
+    public bool IsDiagView => _view == MainView.Diagnostics;
 
     private void SelectView(MainView view)
     {
@@ -146,6 +153,8 @@ public sealed class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsLogView));
         OnPropertyChanged(nameof(IsTrafficView));
         OnPropertyChanged(nameof(IsMapView));
+        OnPropertyChanged(nameof(IsDiagView));
+        RefreshDiagnostics();
     }
 
     public ICommand ShowRadioCommand => new RelayCommand(_ => SelectView(MainView.Radio));
@@ -153,6 +162,28 @@ public sealed class MainViewModel : ObservableObject
     public ICommand ShowTrafficCommand => new RelayCommand(_ => SelectView(MainView.Traffic), _ => _traffic is not null);
 
     public ICommand ShowMapCommand => new RelayCommand(_ => SelectView(MainView.Map), _ => _traffic is not null);
+
+    public ICommand ShowDiagCommand => new RelayCommand(_ => SelectView(MainView.Diagnostics));
+
+    public IReadOnlyList<DiagnosticsItem> DiagnosticsItems
+    {
+        get => _diagnosticsItems;
+        private set => SetProperty(ref _diagnosticsItems, value);
+    }
+
+    /// <summary>Текст отчёта для копирования.</summary>
+    public string DiagnosticsReport => DiagnosticsBuilder.ToText(_diagnosticsItems);
+
+    public string LabelTabDiag => _loc["Ui.TabDiag"];
+    public string LabelDiagTitle => _loc["Ui.DiagTitle"];
+    public string LabelDiagCopy => _loc["Ui.DiagCopy"];
+
+    private void RefreshDiagnostics()
+    {
+        if (!IsDiagView) return;
+        DiagnosticsItems = _diagnostics.Build(_sim.ConnectionState, IsDemo, _sim as ISimDiagnostics, _speech, _listener);
+        OnPropertyChanged(nameof(DiagnosticsReport));
+    }
 
     public ICommand ZoomInCommand => new RelayCommand(_ => ChangeZoom(-1));
 
@@ -259,6 +290,7 @@ public sealed class MainViewModel : ObservableObject
         _traffic?.Advance(elapsed);
         RefreshTraffic();
         RefreshMap();
+        RefreshDiagnostics();
     }
 
     private void RefreshTraffic()
@@ -471,6 +503,7 @@ public sealed class MainViewModel : ObservableObject
         RefreshGround();
         RefreshTraffic();
         RefreshMap();
+        RefreshDiagnostics();
         RebuildQuickActions();
         Lines.Clear();
         foreach (var entry in _log.Entries)
@@ -572,6 +605,7 @@ public sealed class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(StatusText));
         OnPropertyChanged(nameof(ConnectButtonText));
         OnPropertyChanged(nameof(IsConnected));
+        RefreshDiagnostics();
         _nextFrameCommand.NotifyCanExecuteChanged();
         _toggleSourceCommand.NotifyCanExecuteChanged();
     }

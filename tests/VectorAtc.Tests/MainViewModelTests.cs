@@ -708,6 +708,33 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void Diagnostics_tab_fills_the_report_and_translates_it()
+    {
+        var f = new Fixture();
+        Assert.Empty(f.Vm.DiagnosticsItems);
+
+        f.Vm.ShowDiagCommand.Execute(null);
+
+        Assert.True(f.Vm.IsDiagView);
+        Assert.False(f.Vm.IsLogView);
+        Assert.Contains(f.Vm.DiagnosticsItems, i => i.Label == "Connection" && i.Value == "disconnected");
+        Assert.Contains("[INFO] Data source: demo (built-in)", f.Vm.DiagnosticsReport);
+
+        f.Vm.ToggleLanguageCommand.Execute(null);
+        Assert.Contains(f.Vm.DiagnosticsItems, i => i.Label == "Соединение");
+    }
+
+    [Fact]
+    public void Diagnostics_follow_the_connection_state()
+    {
+        var f = new Fixture();
+        f.Vm.ShowDiagCommand.Execute(null);
+        f.Vm.ConnectCommand.Execute(null);
+
+        Assert.Contains(f.Vm.DiagnosticsItems, i => i.Label == "Connection" && i.Value == "connected");
+    }
+
+    [Fact]
     public void Status_without_demo_source_says_connected_to_simulator()
     {
         var loc = new LocalizationService();

@@ -100,4 +100,31 @@
   <data name="Ui.TabMap" xml:space="preserve"><value>Карта</value></data>
   <data name="Ui.MapRange" xml:space="preserve"><value>Дальность</value></data>
   <data name="Ui.MapYou" xml:space="preserve"><value>Вы</value></data>
+  <data name="Ui.TabDiag" xml:space="preserve"><value>Диагностика</value></data>
+  <data name="Ui.DiagTitle" xml:space="preserve"><value>Что видит приложение</value></data>
+  <data name="Ui.DiagCopy" xml:space="preserve"><value>Копировать отчёт</value></data>
+  <data name="Diag.System" xml:space="preserve"><value>Система</value></data>
+  <data name="Diag.Process" xml:space="preserve"><value>Процесс</value></data>
+  <data name="Diag.Source" xml:space="preserve"><value>Источник данных</value></data>
+  <data name="Diag.SourceDemo" xml:space="preserve"><value>демо (встроенный)</value></data>
+  <data name="Diag.SourceSim" xml:space="preserve"><value>симулятор</value></data>
+  <data name="Diag.Library" xml:space="preserve"><value>SimConnect.dll</value></data>
+  <data name="Diag.LibraryFound" xml:space="preserve"><value>найдена: {0}</value></data>
+  <data name="Diag.LibraryMissing" xml:space="preserve"><value>не найдена в перечисленных местах (обычный поиск Windows проверяется при подключении)</value></data>
+  <data name="Diag.Exists" xml:space="preserve"><value>есть</value></data>
+  <data name="Diag.NotExists" xml:space="preserve"><value>нет</value></data>
+  <data name="Diag.Connection" xml:space="preserve"><value>Соединение</value></data>
+  <data name="Diag.State.Disconnected" xml:space="preserve"><value>нет соединения</value></data>
+  <data name="Diag.State.Connecting" xml:space="preserve"><value>подключение</value></data>
+  <data name="Diag.State.Connected" xml:space="preserve"><value>подключено</value></data>
+  <data name="Diag.Frames" xml:space="preserve"><value>Получено кадров данных</value></data>
+  <data name="Diag.LastFrame" xml:space="preserve"><value>Последний кадр</value></data>
+  <data name="Diag.Never" xml:space="preserve"><value>не приходил</value></data>
+  <data name="Diag.SecondsAgo" xml:space="preserve"><value>{0:F1} с назад</value></data>
+  <data name="Diag.Exception" xml:space="preserve"><value>Последний код ошибки симулятора</value></data>
+  <data name="Diag.None" xml:space="preserve"><value>нет</value></data>
+  <data name="Diag.VoiceOut" xml:space="preserve"><value>Озвучивание</value></data>
+  <data name="Diag.VoiceIn" xml:space="preserve"><value>Голосовой ввод</value></data>
+  <data name="Diag.Available" xml:space="preserve"><value>доступно</value></data>
+  <data name="Diag.Unavailable" xml:space="preserve"><value>недоступно</value></data>
 </root>

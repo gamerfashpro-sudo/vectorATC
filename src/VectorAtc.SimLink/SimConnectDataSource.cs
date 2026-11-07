@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using VectorAtc.Core.Abstractions;
+using VectorAtc.Core.Diagnostics;
 using VectorAtc.Core.Models;
 
 namespace VectorAtc.SimLink;
@@ -10,7 +11,7 @@ namespace VectorAtc.SimLink;
 /// События приходят в том контексте синхронизации, который был текущим при вызове <see cref="ConnectAsync"/>
 /// (в окне это поток интерфейса). Здесь код не запускался: проверен только разбор сообщений (<see cref="SimConnectFrameParser"/>).
 /// </summary>
-public sealed class SimConnectDataSource : ISimDataSource, IDisposable
+public sealed class SimConnectDataSource : ISimDataSource, ISimDiagnostics, IDisposable
 {
     private const uint DefineId = 1;
     private const uint RequestId = 1;
@@ -25,6 +26,13 @@ public sealed class SimConnectDataSource : ISimDataSource, IDisposable
     public SimConnectionState ConnectionState { get; private set; } = SimConnectionState.Disconnected;
 
     public AircraftState? Current { get; private set; }
+
+    private long _frames;
+    private long _lastFrameTicks;
+
+    public long FramesReceived => Interlocked.Read(ref _frames);
+
+    public DateTimeOffset? LastFrameAt => Interlocked.Read(ref _lastFrameTicks) is var t and > 0 ? new DateTimeOffset(t, TimeSpan.Zero) : null;
 
     /// <summary>Код последнего исключения SimConnect (SIMCONNECT_EXCEPTION), 0 если не было. Для отладки.</summary>
     public uint LastExceptionId { get; private set; }
@@ -178,6 +186,8 @@ public sealed class SimConnectDataSource : ISimDataSource, IDisposable
             case SimConnectFrameParser.RecvIdSimObjectData:
                 if (SimConnectFrameParser.TryParseAircraft(message, RequestId, out var state) && state is not null)
                 {
+                    Interlocked.Increment(ref _frames);
+                    Interlocked.Exchange(ref _lastFrameTicks, DateTimeOffset.UtcNow.UtcTicks);
                     Post(() =>
                     {
                         Current = state;

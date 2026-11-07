@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
+using VectorAtc.Core.Diagnostics;
 
 namespace VectorAtc.SimLink;
 
@@ -32,16 +33,7 @@ internal static class SimConnectNative
         if (name != Library)
             return IntPtr.Zero;
 
-        var candidates = new List<string>();
-        var exeDir = Path.GetDirectoryName(Environment.ProcessPath);
-        if (!string.IsNullOrEmpty(exeDir)) candidates.Add(Path.Combine(exeDir, "SimConnect.dll"));
-        candidates.Add(Path.Combine(AppContext.BaseDirectory, "SimConnect.dll"));
-
-        var sdk = Environment.GetEnvironmentVariable("MSFS2024_SDK");
-        if (!string.IsNullOrEmpty(sdk))
-            candidates.Add(Path.Combine(sdk, "SimConnect SDK", "lib", "SimConnect.dll"));
-
-        foreach (var path in candidates)
+        foreach (var path in SimConnectLocator.ForThisProcess())
         {
             if (File.Exists(path) && NativeLibrary.TryLoad(path, out var handle))
                 return handle;

@@ -44,6 +44,8 @@
                         <Button Content="{Binding LabelTabTraffic}" Command="{Binding ShowTrafficCommand}"
                                 HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
                         <Button Content="{Binding LabelTabMap}" Command="{Binding ShowMapCommand}"
+                                HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                        <Button Content="{Binding LabelTabDiag}" Command="{Binding ShowDiagCommand}"
                                 HorizontalAlignment="Stretch" Margin="0,0,0,0"/>
                     </StackPanel>
                     <TextBlock Text="{Binding LabelCallsign}" Style="{StaticResource Caption}"/>
@@ -196,6 +198,57 @@
                     <Button Grid.Column="2" Style="{StaticResource PrimaryButton}"
                             Content="{Binding LabelSend}" Command="{Binding SendCommand}"
                             Margin="10,0,0,0" Padding="24,11"/>
+                </Grid>
+
+                <!-- Диагностика: занимает место журнала, быстрых кнопок и ввода -->
+                <Grid Grid.Row="1" Grid.RowSpan="3"
+                      Visibility="{Binding IsDiagView, Converter={StaticResource BoolToVisibility}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <TextBlock Text="{Binding LabelDiagTitle}" Style="{StaticResource Caption}" VerticalAlignment="Center"/>
+                        <Button x:Name="CopyReportButton" Content="{Binding LabelDiagCopy}" HorizontalAlignment="Right"
+                                Padding="14,6"/>
+                    </Grid>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding DiagnosticsItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="2,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="210"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Ellipse Grid.Column="0" Width="9" Height="9" Margin="0,5,10,0" VerticalAlignment="Top">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="{StaticResource Muted}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Level}" Value="Ok">
+                                                            <Setter Property="Fill" Value="{StaticResource Online}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Level}" Value="Warn">
+                                                            <Setter Property="Fill" Value="{StaticResource Warn}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Level}" Value="Fail">
+                                                            <Setter Property="Fill" Value="{StaticResource Offline}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                        <TextBlock Grid.Column="1" Text="{Binding Label}" Foreground="{StaticResource Muted}"
+                                                   FontSize="12" TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Value}" FontFamily="Consolas" FontSize="12"
+                                                   TextWrapping="Wrap"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
 
                 <!-- Карта: занимает место журнала, быстрых кнопок и ввода -->

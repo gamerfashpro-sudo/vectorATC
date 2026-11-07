@@ -100,4 +100,31 @@
   <data name="Ui.TabMap" xml:space="preserve"><value>Map</value></data>
   <data name="Ui.MapRange" xml:space="preserve"><value>Range</value></data>
   <data name="Ui.MapYou" xml:space="preserve"><value>You</value></data>
+  <data name="Ui.TabDiag" xml:space="preserve"><value>Diagnostics</value></data>
+  <data name="Ui.DiagTitle" xml:space="preserve"><value>What the app sees</value></data>
+  <data name="Ui.DiagCopy" xml:space="preserve"><value>Copy report</value></data>
+  <data name="Diag.System" xml:space="preserve"><value>System</value></data>
+  <data name="Diag.Process" xml:space="preserve"><value>Process</value></data>
+  <data name="Diag.Source" xml:space="preserve"><value>Data source</value></data>
+  <data name="Diag.SourceDemo" xml:space="preserve"><value>demo (built-in)</value></data>
+  <data name="Diag.SourceSim" xml:space="preserve"><value>simulator</value></data>
+  <data name="Diag.Library" xml:space="preserve"><value>SimConnect.dll</value></data>
+  <data name="Diag.LibraryFound" xml:space="preserve"><value>found: {0}</value></data>
+  <data name="Diag.LibraryMissing" xml:space="preserve"><value>not found in the listed places (the Windows search path is checked on connect)</value></data>
+  <data name="Diag.Exists" xml:space="preserve"><value>exists</value></data>
+  <data name="Diag.NotExists" xml:space="preserve"><value>missing</value></data>
+  <data name="Diag.Connection" xml:space="preserve"><value>Connection</value></data>
+  <data name="Diag.State.Disconnected" xml:space="preserve"><value>disconnected</value></data>
+  <data name="Diag.State.Connecting" xml:space="preserve"><value>connecting</value></data>
+  <data name="Diag.State.Connected" xml:space="preserve"><value>connected</value></data>
+  <data name="Diag.Frames" xml:space="preserve"><value>Data frames received</value></data>
+  <data name="Diag.LastFrame" xml:space="preserve"><value>Last frame</value></data>
+  <data name="Diag.Never" xml:space="preserve"><value>never</value></data>
+  <data name="Diag.SecondsAgo" xml:space="preserve"><value>{0:F1} s ago</value></data>
+  <data name="Diag.Exception" xml:space="preserve"><value>Last simulator error code</value></data>
+  <data name="Diag.None" xml:space="preserve"><value>none</value></data>
+  <data name="Diag.VoiceOut" xml:space="preserve"><value>Voice output</value></data>
+  <data name="Diag.VoiceIn" xml:space="preserve"><value>Voice input</value></data>
+  <data name="Diag.Available" xml:space="preserve"><value>available</value></data>
+  <data name="Diag.Unavailable" xml:space="preserve"><value>not available</value></data>
 </root>

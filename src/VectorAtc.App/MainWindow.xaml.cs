@@ -34,6 +34,20 @@ public partial class MainWindow : Window
         TalkButton.PreviewMouseLeftButtonUp += (_, _) => (DataContext as MainViewModel)?.EndTalk();
         TalkButton.LostMouseCapture += (_, _) => (DataContext as MainViewModel)?.EndTalk();
 
+        // Копирование отчёта диагностики в буфер обмена.
+        CopyReportButton.Click += (_, _) =>
+        {
+            try
+            {
+                if (DataContext is MainViewModel vm && !string.IsNullOrEmpty(vm.DiagnosticsReport))
+                    Clipboard.SetText(vm.DiagnosticsReport);
+            }
+            catch (Exception)
+            {
+                // буфер обмена может быть занят другой программой; повторное нажатие сработает
+            }
+        };
+
         // Размер области карты сообщаем модели: по нему считаются положения значков.
         MapHost.SizeChanged += (_, e) => (DataContext as MainViewModel)?.SetMapViewport(e.NewSize.Width, e.NewSize.Height);
         Loaded += (_, _) => (DataContext as MainViewModel)?.SetMapViewport(MapHost.ActualWidth, MapHost.ActualHeight);
