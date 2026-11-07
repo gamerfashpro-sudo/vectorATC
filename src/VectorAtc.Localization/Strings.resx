@@ -59,4 +59,9 @@
   <data name="Ui.VoiceOn" xml:space="preserve"><value>Voice: on</value></data>
   <data name="Ui.VoiceOff" xml:space="preserve"><value>Voice: off</value></data>
   <data name="Ui.VoiceMissing" xml:space="preserve"><value>Voice: none for this language</value></data>
+  <data name="Ui.TalkIdle" xml:space="preserve"><value>Hold to talk</value></data>
+  <data name="Ui.TalkListening" xml:space="preserve"><value>Listening…</value></data>
+  <data name="Ui.TalkMissing" xml:space="preserve"><value>Speech input: none for this language</value></data>
+  <data name="Voice.NotUnderstood" xml:space="preserve"><value>Could not understand. Say it again.</value></data>
+  <data name="Voice.Failed" xml:space="preserve"><value>Microphone or recognizer is unavailable.</value></data>
 </root>

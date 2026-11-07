@@ -26,7 +26,8 @@ public partial class VectorApplication : Application
         // Этап 1d: демонстрационный источник данных. Настоящий SimConnect подключается на этапе 2.
         var sim = new MockSimDataSource(MockScenarios.ParkedToHoldShort());
         var viewModel = new MainViewModel(
-            localization, engine, log, sim, () => sim.Advance(), () => new SimConnectDataSource(), new CabinAnnouncer(), new VectorAtc.App.Speech.WindowsSpeechOutput());
+            localization, engine, log, sim, () => sim.Advance(), () => new SimConnectDataSource(), new CabinAnnouncer(), new VectorAtc.App.Speech.WindowsSpeechOutput(),
+            new VectorAtc.App.Speech.WindowsSpeechInput());
 
         new MainWindow { DataContext = viewModel }.Show();
     }

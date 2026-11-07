@@ -155,10 +155,14 @@
 
                 <Grid Grid.Row="3">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Grid Grid.Column="0">
+                    <Button x:Name="TalkButton" Grid.Column="0" Content="{Binding TalkButtonText}"
+                            Margin="0,0,10,0" Padding="18,11"
+                            Visibility="{Binding IsTalkVisible, Converter={StaticResource BoolToVisibility}}"/>
+                    <Grid Grid.Column="1">
                         <TextBox Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}">
                             <TextBox.InputBindings>
                                 <KeyBinding Key="Return" Command="{Binding SendCommand}"/>
@@ -178,7 +182,7 @@
                             </TextBlock.Style>
                         </TextBlock>
                     </Grid>
-                    <Button Grid.Column="1" Style="{StaticResource PrimaryButton}"
+                    <Button Grid.Column="2" Style="{StaticResource PrimaryButton}"
                             Content="{Binding LabelSend}" Command="{Binding SendCommand}"
                             Margin="10,0,0,0" Padding="24,11"/>
                 </Grid>

@@ -369,6 +369,99 @@ public class MainViewModelTests
         Assert.Equal("Голос: нет для этого языка", vm.VoiceButtonText);
     }
 
+    private sealed class FakeListener : ISpeechInput
+    {
+        public HashSet<string> Languages { get; } = new() { "en", "ru" };
+        public List<string> Started { get; } = new();
+        public int Stopped { get; private set; }
+
+        public event EventHandler<string>? Recognized;
+        public event EventHandler? NotUnderstood;
+        public event EventHandler? Failed;
+
+        public bool CanListen(CultureInfo culture) => Languages.Contains(culture.TwoLetterISOLanguageName);
+        public void StartListening(CultureInfo culture) => Started.Add(culture.TwoLetterISOLanguageName);
+        public void StopListening() => Stopped++;
+        public void Hear(string text) => Recognized?.Invoke(this, text);
+        public void Mumble() => NotUnderstood?.Invoke(this, EventArgs.Empty);
+        public void Break() => Failed?.Invoke(this, EventArgs.Empty);
+    }
+
+    private static (MainViewModel Vm, FakeListener Mic, FakeSpeech Speech) MicFixture()
+    {
+        var loc = new LocalizationService();
+        var log = new ExchangeLog();
+        var speech = new FakeSpeech();
+        var mic = new FakeListener();
+        var engine = new ControllerEngine(new PhraseBook(), MockScenarios.TestAirport, PhraseStyle.Icao, loc.Culture, log);
+        var vm = new MainViewModel(loc, engine, log, new MockSimDataSource(), null, null, null, speech, mic);
+        return (vm, mic, speech);
+    }
+
+    [Fact]
+    public void Hold_to_talk_listens_then_recognised_phrase_is_sent_like_typed_text()
+    {
+        var (vm, mic, speech) = MicFixture();
+        Assert.Equal("Hold to talk", vm.TalkButtonText);
+
+        vm.BeginTalk();
+        Assert.True(vm.IsListening);
+        Assert.Equal("Listening…", vm.TalkButtonText);
+        Assert.Equal(new[] { "en" }, mic.Started.ToArray());
+        Assert.Equal(1, speech.Stops);
+
+        vm.EndTalk();
+        Assert.False(vm.IsListening);
+        Assert.Equal(1, mic.Stopped);
+
+        mic.Hear("N172SP request taxi");
+        Assert.Equal("N172SP request taxi", vm.Lines[0].Text);
+        Assert.Equal("Pilot", vm.Lines[0].Speaker);
+        Assert.Equal("N172SP, taxi to holding point runway 27 via Alpha, Bravo", vm.Lines[1].Text);
+    }
+
+    [Fact]
+    public void Unrecognised_speech_adds_a_localised_note()
+    {
+        var (vm, mic, _) = MicFixture();
+        vm.BeginTalk();
+        vm.EndTalk();
+        mic.Mumble();
+
+        Assert.Equal("Could not understand. Say it again.", vm.Lines.Single(l => l.Kind == LogSource.Violation).Text);
+
+        vm.ToggleLanguageCommand.Execute(null);
+        Assert.Equal("Не удалось разобрать. Повторите.", vm.Lines.Single(l => l.Kind == LogSource.Violation).Text);
+    }
+
+    [Fact]
+    public void Microphone_failure_adds_a_note_and_stops_listening()
+    {
+        var (vm, mic, _) = MicFixture();
+        vm.BeginTalk();
+        mic.Break();
+
+        Assert.False(vm.IsListening);
+        Assert.Equal("Microphone or recognizer is unavailable.", vm.Lines.Single().Text);
+    }
+
+    [Fact]
+    public void Talk_is_ignored_when_language_has_no_recognizer_and_double_press_starts_once()
+    {
+        var (vm, mic, _) = MicFixture();
+        vm.BeginTalk();
+        vm.BeginTalk();
+        Assert.Single(mic.Started);
+
+        mic.Languages.Remove("ru");
+        vm.ToggleLanguageCommand.Execute(null);
+        Assert.Equal("Голосовой ввод: нет для этого языка", vm.TalkButtonText);
+
+        vm.BeginTalk();
+        Assert.Single(mic.Started);
+        Assert.False(vm.IsListening);
+    }
+
     [Fact]
     public void Status_without_demo_source_says_connected_to_simulator()
     {

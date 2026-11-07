@@ -59,4 +59,9 @@
   <data name="Ui.VoiceOn" xml:space="preserve"><value>Голос: вкл</value></data>
   <data name="Ui.VoiceOff" xml:space="preserve"><value>Голос: выкл</value></data>
   <data name="Ui.VoiceMissing" xml:space="preserve"><value>Голос: нет для этого языка</value></data>
+  <data name="Ui.TalkIdle" xml:space="preserve"><value>Удерживайте и говорите</value></data>
+  <data name="Ui.TalkListening" xml:space="preserve"><value>Слушаю…</value></data>
+  <data name="Ui.TalkMissing" xml:space="preserve"><value>Голосовой ввод: нет для этого языка</value></data>
+  <data name="Voice.NotUnderstood" xml:space="preserve"><value>Не удалось разобрать. Повторите.</value></data>
+  <data name="Voice.Failed" xml:space="preserve"><value>Микрофон или распознаватель недоступны.</value></data>
 </root>

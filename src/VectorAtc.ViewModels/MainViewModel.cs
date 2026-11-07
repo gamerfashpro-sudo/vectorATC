@@ -34,6 +34,8 @@ public sealed class MainViewModel : ObservableObject
     private readonly CabinAnnouncer? _cabin;
     private readonly ISpeechOutput? _speech;
     private bool _voiceEnabled = true;
+    private readonly ISpeechInput? _listener;
+    private bool _isListening;
     private readonly Func<bool>? _advanceDemoFrame;
     private readonly RelayCommand _sendCommand;
     private readonly RelayCommand _connectCommand;
@@ -47,7 +49,7 @@ public sealed class MainViewModel : ObservableObject
     public MainViewModel(
         ILocalizationService loc, ControllerEngine engine, ExchangeLog log, ISimDataSource sim,
         Func<bool>? advanceDemoFrame = null, Func<ISimDataSource>? realSimFactory = null, CabinAnnouncer? cabin = null,
-        ISpeechOutput? speech = null)
+        ISpeechOutput? speech = null, ISpeechInput? listener = null)
     {
         _loc = loc ?? throw new ArgumentNullException(nameof(loc));
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
@@ -58,6 +60,13 @@ public sealed class MainViewModel : ObservableObject
         _realSimFactory = realSimFactory;
         _cabin = cabin;
         _speech = speech;
+        _listener = listener;
+        if (_listener is not null)
+        {
+            _listener.Recognized += (_, text) => OnHeard(text);
+            _listener.NotUnderstood += (_, _) => LogVoiceNote("Voice.NotUnderstood");
+            _listener.Failed += (_, _) => LogVoiceNote("Voice.Failed");
+        }
 
         _sendCommand = new RelayCommand(_ => SendInput(), _ => !string.IsNullOrWhiteSpace(InputText));
         _connectCommand = new RelayCommand(_ => ToggleConnection());
@@ -222,6 +231,7 @@ public sealed class MainViewModel : ObservableObject
     {
         _engine.Culture = _loc.Culture;
         _speech?.Stop();
+        EndTalk();
         RebuildQuickActions();
         Lines.Clear();
         foreach (var entry in _log.Entries)
@@ -235,6 +245,56 @@ public sealed class MainViewModel : ObservableObject
         : _loc[_voiceEnabled ? "Ui.VoiceOn" : "Ui.VoiceOff"];
 
     public bool IsVoiceVisible => _speech is not null;
+
+    public bool IsTalkVisible => _listener is not null;
+
+    public bool IsListening
+    {
+        get => _isListening;
+        private set
+        {
+            if (_isListening == value) return;
+            _isListening = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(TalkButtonText));
+        }
+    }
+
+    /// <summary>Подпись кнопки «говорить»: готова, слушает или нет распознавателя для языка.</summary>
+    public string TalkButtonText =>
+        _listener is null || !_listener.CanListen(_loc.Culture) ? _loc["Ui.TalkMissing"]
+        : _loc[IsListening ? "Ui.TalkListening" : "Ui.TalkIdle"];
+
+    /// <summary>Кнопку нажали: начать слушать микрофон. Свою речь диспетчера на это время прерываем.</summary>
+    public void BeginTalk()
+    {
+        if (_listener is null || IsListening || !_listener.CanListen(_loc.Culture))
+            return;
+        _speech?.Stop();
+        IsListening = true;
+        _listener.StartListening(_loc.Culture);
+    }
+
+    /// <summary>Кнопку отпустили: закончить слушать, результат придёт отдельно.</summary>
+    public void EndTalk()
+    {
+        if (_listener is null || !IsListening)
+            return;
+        IsListening = false;
+        _listener.StopListening();
+    }
+
+    private void OnHeard(string text)
+    {
+        IsListening = false;
+        SendText(text);
+    }
+
+    private void LogVoiceNote(string key)
+    {
+        IsListening = false;
+        _log.Add(LogSource.Violation, _loc[key], key);
+    }
 
     private void ToggleVoice()
     {

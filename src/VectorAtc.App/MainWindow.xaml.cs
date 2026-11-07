@@ -29,6 +29,11 @@ public partial class MainWindow : Window
             }
         };
 
+        // Удержание кнопки: пока нажата, микрофон слушает.
+        TalkButton.PreviewMouseLeftButtonDown += (_, _) => (DataContext as MainViewModel)?.BeginTalk();
+        TalkButton.PreviewMouseLeftButtonUp += (_, _) => (DataContext as MainViewModel)?.EndTalk();
+        TalkButton.LostMouseCapture += (_, _) => (DataContext as MainViewModel)?.EndTalk();
+
         // Новая строка журнала прокручивает список вниз.
         Loaded += (_, _) =>
         {
