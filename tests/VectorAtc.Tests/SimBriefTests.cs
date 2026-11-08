@@ -127,8 +127,7 @@ public class SimBriefTests
         var h = new FakeHandler { Respond = _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(Sample) } };
         var r = await Client(h).FetchLatestAsync("123456");
         Assert.True(r.IsSuccess);
-        Assert.Equal(1, h.Urls.Count);
-        Assert.Equal(HttpSimBriefClient.BuildUrl("123456"), h.Urls[0]);
+        Assert.Equal(HttpSimBriefClient.BuildUrl("123456"), Assert.Single(h.Urls));
     }
 
     [Fact]
@@ -200,8 +199,7 @@ public class SimBriefTests
 
         await vm.LoadFlightPlanAsync();
 
-        Assert.Equal(1, client.Asked.Count);
-        Assert.Equal("123456", client.Asked[0]);
+        Assert.Equal("123456", Assert.Single(client.Asked));
         Assert.Equal("AFL1234", vm.Callsign);
         Assert.Equal("Plan loaded", vm.PlanStatus);
         Assert.Contains("AFL1234 · A320 (VQ-BAA)", vm.PlanSummary);
