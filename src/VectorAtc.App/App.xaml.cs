@@ -14,9 +14,37 @@ namespace VectorAtc.App;
 
 public partial class VectorApplication : Application
 {
+    public VectorApplication()
+    {
+        StartupLog.Write("процесс начал работу");
+        DispatcherUnhandledException += (_, args) =>
+        {
+            ReportCrash(args.Exception);
+            args.Handled = true;
+            Shutdown(1);
+        };
+        AppDomain.CurrentDomain.UnhandledException += (_, args) => ReportCrash(args.ExceptionObject as Exception);
+    }
+
+    private static void ReportCrash(Exception? error)
+    {
+        StartupLog.Write("ОШИБКА: " + (error?.ToString() ?? "неизвестная"));
+        try
+        {
+            MessageBox.Show(
+                $"{error?.GetType().Name}: {error?.Message}\n\n{StartupLog.FilePath}",
+                "Vector ATC", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        catch (Exception)
+        {
+            // окно ошибки необязательно
+        }
+    }
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        StartupLog.Write("ресурсы приложения загружены, создаю окно");
 
         var settingsStore = new JsonSettingsStore(System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VectorATC", "settings.json"));
@@ -47,5 +75,6 @@ public partial class VectorApplication : Application
             simBrief: new VectorAtc.Core.FlightPlan.HttpSimBriefClient());
 
         new MainWindow { DataContext = viewModel }.Show();
+        StartupLog.Write("окно показано");
     }
 }
