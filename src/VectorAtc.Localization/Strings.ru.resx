@@ -127,4 +127,12 @@
   <data name="Diag.VoiceIn" xml:space="preserve"><value>Голосовой ввод</value></data>
   <data name="Diag.Available" xml:space="preserve"><value>доступно</value></data>
   <data name="Diag.Unavailable" xml:space="preserve"><value>недоступно</value></data>
+  <data name="Ui.PlanCaption" xml:space="preserve"><value>План полёта</value></data>
+  <data name="Ui.PlanId" xml:space="preserve"><value>ID или имя пользователя SimBrief</value></data>
+  <data name="Ui.PlanLoad" xml:space="preserve"><value>Загрузить план</value></data>
+  <data name="Plan.Loading" xml:space="preserve"><value>Загрузка…</value></data>
+  <data name="Plan.Loaded" xml:space="preserve"><value>План загружен</value></data>
+  <data name="Plan.NotFound" xml:space="preserve"><value>План не найден. Проверьте ID или имя и что план был создан.</value></data>
+  <data name="Plan.Network" xml:space="preserve"><value>Нет связи с SimBrief. Попробуйте позже.</value></data>
+  <data name="Plan.BadResponse" xml:space="preserve"><value>SimBrief вернул данные, которые приложение не смогло прочитать.</value></data>
 </root>

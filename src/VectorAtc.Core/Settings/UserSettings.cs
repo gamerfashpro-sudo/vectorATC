@@ -8,7 +8,8 @@ public sealed record UserSettings(
     string? Style = null,
     string? Callsign = null,
     bool? VoiceEnabled = null,
-    double? MapRangeNm = null);
+    double? MapRangeNm = null,
+    string? SimBriefId = null);
 
 public interface ISettingsStore
 {

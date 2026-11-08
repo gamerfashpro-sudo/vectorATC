@@ -127,4 +127,12 @@
   <data name="Diag.VoiceIn" xml:space="preserve"><value>Voice input</value></data>
   <data name="Diag.Available" xml:space="preserve"><value>available</value></data>
   <data name="Diag.Unavailable" xml:space="preserve"><value>not available</value></data>
+  <data name="Ui.PlanCaption" xml:space="preserve"><value>Flight plan</value></data>
+  <data name="Ui.PlanId" xml:space="preserve"><value>SimBrief ID or username</value></data>
+  <data name="Ui.PlanLoad" xml:space="preserve"><value>Load plan</value></data>
+  <data name="Plan.Loading" xml:space="preserve"><value>Loading…</value></data>
+  <data name="Plan.Loaded" xml:space="preserve"><value>Plan loaded</value></data>
+  <data name="Plan.NotFound" xml:space="preserve"><value>Plan not found. Check the ID or username, and that you have generated a plan.</value></data>
+  <data name="Plan.Network" xml:space="preserve"><value>No connection to SimBrief. Try again later.</value></data>
+  <data name="Plan.BadResponse" xml:space="preserve"><value>SimBrief returned data the app could not read.</value></data>
 </root>

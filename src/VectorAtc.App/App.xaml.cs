@@ -43,8 +43,11 @@ public partial class VectorApplication : Application
             new VectorAtc.App.Speech.WindowsSpeechInput(),
             new SimulatedGroundServices(),
             new SimulatedTraffic(MockScenarios.TestAirport.HoldPoint),
-            settings: settingsStore);
+            settings: settingsStore,
+            simBrief: new VectorAtc.Core.FlightPlan.HttpSimBriefClient());
 
         new MainWindow { DataContext = viewModel }.Show();
+        if (viewModel.LoadPlanCommand.CanExecute(null))
+            viewModel.LoadPlanCommand.Execute(null);
     }
 }

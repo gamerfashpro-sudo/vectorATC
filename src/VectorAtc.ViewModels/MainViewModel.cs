@@ -5,6 +5,7 @@ using VectorAtc.Core.Abstractions;
 using VectorAtc.Core.Controller;
 using VectorAtc.Core.Diagnostics;
 using VectorAtc.Core.Flight;
+using VectorAtc.Core.FlightPlan;
 using VectorAtc.Core.Geo;
 using VectorAtc.Core.Ground;
 using VectorAtc.Core.Traffic;
@@ -45,6 +46,12 @@ public sealed class MainViewModel : ObservableObject
     private readonly DiagnosticsBuilder _diagnostics;
     private readonly ISettingsStore? _settings;
     private bool _applyingSettings;
+    private readonly ISimBriefClient? _simBrief;
+    private string _simBriefId = "";
+    private string _planStatusKey = "";
+    private string _planSummary = "";
+    private bool _planLoading;
+    private RelayCommand? _loadPlanCommand;
     private IReadOnlyList<DiagnosticsItem> _diagnosticsItems = Array.Empty<DiagnosticsItem>();
     private IReadOnlyList<TrafficRow> _trafficRows = Array.Empty<TrafficRow>();
     private MainView _view = MainView.Radio;
@@ -69,7 +76,7 @@ public sealed class MainViewModel : ObservableObject
         Func<bool>? advanceDemoFrame = null, Func<ISimDataSource>? realSimFactory = null, CabinAnnouncer? cabin = null,
         ISpeechOutput? speech = null, ISpeechInput? listener = null,
         IGroundServicesProvider? ground = null, ITrafficSource? traffic = null,
-        DiagnosticsBuilder? diagnostics = null, ISettingsStore? settings = null)
+        DiagnosticsBuilder? diagnostics = null, ISettingsStore? settings = null, ISimBriefClient? simBrief = null)
     {
         _loc = loc ?? throw new ArgumentNullException(nameof(loc));
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
@@ -85,6 +92,7 @@ public sealed class MainViewModel : ObservableObject
         _traffic = traffic;
         _diagnostics = diagnostics ?? new DiagnosticsBuilder(_loc);
         _settings = settings;
+        _simBrief = simBrief;
         ApplySavedSettings();
         RefreshTraffic();
         if (_ground is not null)
@@ -391,6 +399,105 @@ public sealed class MainViewModel : ObservableObject
         }
     }
 
+    public bool IsPlanVisible => _simBrief is not null;
+
+    public string LabelPlan => _loc["Ui.PlanCaption"];
+    public string LabelPlanId => _loc["Ui.PlanId"];
+    public string LabelPlanLoad => _loc["Ui.PlanLoad"];
+
+    /// <summary>ID или имя пользователя SimBrief.</summary>
+    public string SimBriefId
+    {
+        get => _simBriefId;
+        set
+        {
+            if (SetProperty(ref _simBriefId, (value ?? "").Trim()))
+            {
+                SaveSettings();
+                _loadPlanCommand?.NotifyCanExecuteChanged();
+            }
+        }
+    }
+
+    /// <summary>Состояние загрузки плана на языке интерфейса (хранится ключ, чтобы перевод менялся вместе с языком).</summary>
+    public string PlanStatus => _planStatusKey.Length == 0 ? "" : _loc[_planStatusKey];
+
+    private void SetPlanStatus(string key)
+    {
+        _planStatusKey = key;
+        OnPropertyChanged(nameof(PlanStatus));
+    }
+
+    public string PlanSummary
+    {
+        get => _planSummary;
+        private set => SetProperty(ref _planSummary, value);
+    }
+
+    public ICommand LoadPlanCommand =>
+        _loadPlanCommand ??= new RelayCommand(
+            async _ => await LoadFlightPlanAsync(),
+            _ => _simBrief is not null && !_planLoading && !string.IsNullOrWhiteSpace(_simBriefId));
+
+    /// <summary>Загружает последний план полёта из SimBrief и подставляет позывной. Исключений наружу не бросает.</summary>
+    public async Task LoadFlightPlanAsync(CancellationToken cancellationToken = default)
+    {
+        if (_simBrief is null || _planLoading || string.IsNullOrWhiteSpace(_simBriefId)) return;
+        _planLoading = true;
+        _loadPlanCommand?.NotifyCanExecuteChanged();
+        SetPlanStatus("Plan.Loading");
+        try
+        {
+            var result = await _simBrief.FetchLatestAsync(_simBriefId, cancellationToken);
+            if (result.Plan is { } plan)
+            {
+                PlanSummary = BuildPlanSummary(plan);
+                SetPlanStatus("Plan.Loaded");
+                if (!string.IsNullOrWhiteSpace(plan.Callsign))
+                    Callsign = plan.Callsign;
+            }
+            else
+            {
+                PlanSummary = "";
+                SetPlanStatus(result.Error switch
+                {
+                    FlightPlanError.NotFound => "Plan.NotFound",
+                    FlightPlanError.Network => "Plan.Network",
+                    _ => "Plan.BadResponse",
+                });
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            SetPlanStatus("");
+        }
+        catch (Exception)
+        {
+            // Вызывается из команды без ожидания: необработанное исключение здесь закрыло бы приложение.
+            PlanSummary = "";
+            SetPlanStatus("Plan.BadResponse");
+        }
+        finally
+        {
+            _planLoading = false;
+            _loadPlanCommand?.NotifyCanExecuteChanged();
+        }
+    }
+
+    private static string BuildPlanSummary(FlightPlanInfo p)
+    {
+        static string Or(string value, string fallback) => string.IsNullOrWhiteSpace(value) ? fallback : value;
+        var lines = new List<string>
+        {
+            $"{Or(p.Callsign, p.AirlineIcao + p.FlightNumber)} · {Or(p.AircraftIcao, "?")}" +
+                (string.IsNullOrWhiteSpace(p.Registration) ? "" : $" ({p.Registration})"),
+            $"{Or(p.OriginIcao, "?")}" + (string.IsNullOrWhiteSpace(p.OriginRunway) ? "" : $" {p.OriginRunway}") +
+                $" → {Or(p.DestinationIcao, "?")}" + (string.IsNullOrWhiteSpace(p.DestinationRunway) ? "" : $" {p.DestinationRunway}"),
+        };
+        if (p.Passengers is { } pax) lines.Add($"PAX {pax}");
+        return string.Join("\n", lines);
+    }
+
     /// <summary>Язык и стиль фразеологии применяет приложение до создания модели; здесь возвращаем остальное.</summary>
     private void ApplySavedSettings()
     {
@@ -400,6 +507,7 @@ public sealed class MainViewModel : ObservableObject
         {
             var s = _settings.Load();
             if (!string.IsNullOrWhiteSpace(s.Callsign)) _callsign = s.Callsign.Trim();
+            if (!string.IsNullOrWhiteSpace(s.SimBriefId)) _simBriefId = s.SimBriefId.Trim();
             if (s.VoiceEnabled is { } voice) _voiceEnabled = voice;
             if (s.MapRangeNm is { } range)
             {
@@ -419,7 +527,7 @@ public sealed class MainViewModel : ObservableObject
     {
         if (_settings is null || _applyingSettings) return;
         _settings.Save(new UserSettings(
-            _loc.Culture.TwoLetterISOLanguageName, _engine.Style.ToString(), _callsign, _voiceEnabled, MapRanges[_mapRangeIndex]));
+            _loc.Culture.TwoLetterISOLanguageName, _engine.Style.ToString(), _callsign, _voiceEnabled, MapRanges[_mapRangeIndex], _simBriefId));
     }
 
     public string InputText
