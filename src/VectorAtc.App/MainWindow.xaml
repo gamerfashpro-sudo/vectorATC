@@ -463,7 +463,7 @@
                                             <TextBlock Text="{Binding StateText}" FontSize="12" HorizontalAlignment="Right"
                                                        Foreground="{StaticResource Muted}"/>
                                         </Grid>
-                                        <ProgressBar Value="{Binding ProgressPercent}" Margin="0,6,0,0"/>
+                                        <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Margin="0,6,0,0"/>
                                     </StackPanel>
                                     <Button Grid.Column="1" Content="{Binding DataContext.LabelOrder, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             Command="{Binding RequestCommand}" Margin="12,0,0,0" Padding="12,5"/>
