@@ -97,9 +97,8 @@ public class MainViewModelTests
     {
         var f = new Fixture();
         f.Vm.Callsign = "UAL123";
-        var taxi = f.Vm.QuickActions[0];
+        var taxi = f.Vm.QuickActions.Single(a => a.Label == "Request taxi");
 
-        Assert.Equal("Request taxi", taxi.Label);
         taxi.Command.Execute(null);
 
         Assert.Equal("UAL123 Request taxi", f.Vm.Lines[0].Text);
@@ -115,10 +114,62 @@ public class MainViewModelTests
             var f = new Fixture();
             if (language == "ru") f.Vm.ToggleLanguageCommand.Execute(null);
 
-            Assert.Equal(5, f.Vm.QuickActions.Count);
+            Assert.Equal(3, f.Vm.QuickActions.Count);
             foreach (var action in f.Vm.QuickActions)
                 Assert.True(parser.Parse($"UAL123 {action.Label}").Intent != IntentType.Unknown);
         }
+    }
+
+    [Fact]
+    public void Quick_actions_follow_the_flight_state()
+    {
+        var f = new Fixture();
+        Assert.Equal(new[] { "Request pushback", "Request taxi", "Radio check" }, f.Vm.QuickActions.Select(a => a.Label).ToArray());
+        Assert.False(f.Vm.QuickActions.Any(a => a.IsPrimary));
+
+        f.Vm.QuickActions.Single(a => a.Label == "Request pushback").Command.Execute(null);
+        Assert.Equal(new[] { "Request taxi", "Radio check" }, f.Vm.QuickActions.Select(a => a.Label).ToArray());
+
+        f.Vm.QuickActions.Single(a => a.Label == "Request taxi").Command.Execute(null);
+        var primary = Assert.Single(f.Vm.QuickActions.Where(a => a.IsPrimary));
+        Assert.Equal("Taxi to holding point runway 27 via Alpha, Bravo, N172SP", primary.Label);
+        Assert.Equal(f.Vm.QuickActions[0], primary);
+        Assert.Contains(f.Vm.QuickActions, a => a.Label == "Say again");
+        Assert.False(f.Vm.QuickActions.Any(a => a.Label == "Request taxi"));
+
+        primary.Command.Execute(null);
+        Assert.Equal("Taxiing", f.Vm.StateText);
+        Assert.False(f.Vm.QuickActions.Any(a => a.IsPrimary));
+    }
+
+    [Fact]
+    public void Readback_suggestion_is_accepted_by_the_controller_in_every_language_and_style()
+    {
+        foreach (var language in new[] { "en", "ru" })
+        foreach (var us in new[] { false, true })
+        {
+            var f = new Fixture();
+            if (language == "ru") f.Vm.ToggleLanguageCommand.Execute(null);
+            if (us) f.Vm.ToggleStyleCommand.Execute(null);
+
+            f.Vm.QuickActions.First(a => !a.IsPrimary && a.Label.Length > 0 && a.Command is not null).Command.Execute(null); // pushback
+            var taxi = f.Vm.QuickActions.First(a => a.Label == (language == "ru" ? "Запрашиваю руление" : "Request taxi"));
+            taxi.Command.Execute(null);
+
+            var readback = Assert.Single(f.Vm.QuickActions.Where(a => a.IsPrimary));
+            Assert.Contains("N172SP", readback.Label);
+            readback.Command.Execute(null);
+            Assert.Equal(language == "ru" ? "Руление" : "Taxiing", f.Vm.StateText);
+        }
+    }
+
+    [Fact]
+    public void Quick_actions_use_the_current_callsign_in_the_readback()
+    {
+        var f = new Fixture();
+        f.Vm.Callsign = "UAL123";
+        f.Vm.QuickActions.Single(a => a.Label == "Request taxi").Command.Execute(null);
+        Assert.EndsWith("UAL123", f.Vm.QuickActions.Single(a => a.IsPrimary).Label);
     }
 
     [Fact]
@@ -134,7 +185,7 @@ public class MainViewModelTests
         Assert.Equal("EN", f.Vm.LanguageButtonText);
         Assert.Equal("Vector ATC", f.Vm.Title);
         Assert.Equal("Отправить", f.Vm.LabelSend);
-        Assert.Equal("Запрашиваю руление", f.Vm.QuickActions[0].Label);
+        Assert.Contains(f.Vm.QuickActions, a => a.Label == "Запрашиваю руление");
         Assert.Equal("Нет подключения к симулятору", f.Vm.StatusText);
         Assert.Contains("", changed);
 
@@ -536,15 +587,18 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public void Deboarding_while_boarding_is_refused_with_a_note()
+    public void Deboarding_button_is_disabled_while_boarding_and_enabled_again_afterwards()
     {
         var (vm, _, _) = GroundFixture();
-        vm.GroundServices[1].RequestCommand.Execute(null);
-        vm.GroundServices[4].RequestCommand.Execute(null);
+        Assert.True(vm.GroundServices[4].RequestCommand.CanExecute(null));
 
-        Assert.Equal("This service cannot be started right now.",
-            vm.Lines.Single(l => l.Kind == LogSource.Violation).Text);
+        vm.GroundServices[1].RequestCommand.Execute(null);
+        Assert.False(vm.GroundServices[4].RequestCommand.CanExecute(null));
+        Assert.False(vm.GroundServices[1].RequestCommand.CanExecute(null));
+
+        vm.GroundServices[4].RequestCommand.Execute(null);
         Assert.Equal("Not ordered", vm.GroundServices[4].StateText);
+        Assert.Empty(vm.Lines.Where(l => l.Kind == LogSource.Violation));
     }
 
     private static (MainViewModel Vm, MockSimDataSource Sim, SimulatedTraffic Traffic) TrafficFixture()

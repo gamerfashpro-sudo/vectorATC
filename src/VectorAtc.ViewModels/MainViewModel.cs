@@ -24,11 +24,6 @@ namespace VectorAtc.ViewModels;
 /// </summary>
 public sealed class MainViewModel : ObservableObject
 {
-    private static readonly string[] QuickKeys =
-    {
-        "Quick.Taxi", "Quick.Pushback", "Quick.RadioCheck", "Quick.SayAgain", "Quick.ReadyDeparture",
-    };
-
     private readonly ILocalizationService _loc;
     private readonly ControllerEngine _engine;
     private readonly ExchangeLog _log;
@@ -70,6 +65,7 @@ public sealed class MainViewModel : ObservableObject
     private string _callsign = "N172SP";
     private string _inputText = "";
     private IReadOnlyList<QuickAction> _quickActions = Array.Empty<QuickAction>();
+    private string _quickKey = "";
 
     public MainViewModel(
         ILocalizationService loc, ControllerEngine engine, ExchangeLog log, ISimDataSource sim,
@@ -395,7 +391,11 @@ public sealed class MainViewModel : ObservableObject
         set
         {
             if (SetProperty(ref _callsign, value ?? ""))
+            {
                 SaveSettings();
+                if (QuickKey() != _quickKey)
+                    RebuildQuickActions();
+            }
         }
     }
 
@@ -643,6 +643,7 @@ public sealed class MainViewModel : ObservableObject
         _engine.Style = _engine.Style == PhraseStyle.Icao ? PhraseStyle.Us : PhraseStyle.Icao;
         OnPropertyChanged(nameof(StyleButtonText));
         SaveSettings();
+        RebuildQuickActions();
     }
 
     private void OnLanguageChanged()
@@ -737,19 +738,66 @@ public sealed class MainViewModel : ObservableObject
         _speech.Speak(entry.Text, _loc.Culture, role);
     }
 
-    private void RebuildQuickActions() =>
-        QuickActions = QuickKeys
-            .Select(key =>
-            {
-                var label = _loc[key];
-                return new QuickAction(label, new RelayCommand(_ => SendText($"{Callsign} {label}")));
-            })
-            .ToList();
+    private string QuickKey() => $"{_engine.State}|{Callsign}|{_engine.Style}|{_loc.Culture.Name}";
+
+    /// <summary>
+    /// Подсказки-ответы зависят от того, что сейчас ждёт диспетчер: после разрешения на руление первой идёт кнопка с полным
+    /// подтверждением (read-back), в остальных состояниях только уместные запросы.
+    /// </summary>
+    private void RebuildQuickActions()
+    {
+        _quickKey = QuickKey();
+        QuickAction Phrase(string key)
+        {
+            var label = _loc[key];
+            return new QuickAction(label, new RelayCommand(_ => SendText($"{Callsign} {label}")));
+        }
+
+        var list = new List<QuickAction>();
+        switch (_engine.State)
+        {
+            case FlightState.Parked:
+                list.AddRange(new[] { Phrase("Quick.Pushback"), Phrase("Quick.Taxi"), Phrase("Quick.RadioCheck") });
+                break;
+            case FlightState.PushbackApproved:
+                list.AddRange(new[] { Phrase("Quick.Taxi"), Phrase("Quick.RadioCheck") });
+                break;
+            case FlightState.TaxiClearanceIssued:
+                var readback = BuildTaxiReadback();
+                list.Add(new QuickAction(readback, new RelayCommand(_ => SendText(readback)), IsPrimary: true));
+                list.AddRange(new[] { Phrase("Quick.SayAgain"), Phrase("Quick.RadioCheck") });
+                break;
+            case FlightState.Taxiing:
+                list.AddRange(new[] { Phrase("Quick.RadioCheck"), Phrase("Quick.SayAgain") });
+                break;
+            case FlightState.TowerContacted:
+                list.AddRange(new[] { Phrase("Quick.ReadyDeparture"), Phrase("Quick.RadioCheck"), Phrase("Quick.SayAgain") });
+                break;
+            default:
+                list.AddRange(new[] { Phrase("Quick.RadioCheck"), Phrase("Quick.SayAgain") });
+                break;
+        }
+
+        QuickActions = list;
+    }
+
+    /// <summary>Полное повторение разрешения на руление: полоса, рулёжные дорожки по порядку, свой позывной.</summary>
+    private string BuildTaxiReadback()
+    {
+        var airport = _engine.Airport;
+        var template = _loc[_engine.Style == PhraseStyle.Icao ? "Reply.ReadbackTaxi" : "Reply.ReadbackTaxiUs"];
+        return template
+            .Replace("{runway}", airport.ActiveRunway, StringComparison.Ordinal)
+            .Replace("{route}", airport.SpokenTaxiRoute, StringComparison.Ordinal)
+            .Replace("{callsign}", Callsign, StringComparison.Ordinal);
+    }
 
     private void RefreshFlight()
     {
         OnPropertyChanged(nameof(PhaseText));
         OnPropertyChanged(nameof(StateText));
+        if (QuickKey() != _quickKey)
+            RebuildQuickActions();
     }
 
     private void RefreshConnection()

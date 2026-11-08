@@ -17,7 +17,8 @@ public enum GroundServiceState
 }
 
 /// <summary>Состояние одной услуги. Progress от 0 до 1.</summary>
-public sealed record GroundServiceStatus(GroundService Service, GroundServiceState State, double Progress);
+/// <summary>Состояние услуги. CanRequest: можно ли заказать её прямо сейчас (не идёт сама и не мешает другая услуга).</summary>
+public sealed record GroundServiceStatus(GroundService Service, GroundServiceState State, double Progress, bool CanRequest = true);
 
 /// <summary>Изменение состояния услуги (началась или закончилась).</summary>
 public sealed record GroundServiceChange(GroundService Service, GroundServiceState State);

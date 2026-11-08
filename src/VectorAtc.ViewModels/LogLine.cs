@@ -7,4 +7,5 @@ namespace VectorAtc.ViewModels;
 public sealed record LogLine(string Time, string Speaker, string Text, LogSource Kind);
 
 /// <summary>Быстрая кнопка: подпись и команда, которая отправляет готовую реплику.</summary>
-public sealed record QuickAction(string Label, ICommand Command);
+/// <summary>Подсказка-ответ пилота под лентой. IsPrimary: главный ответ на текущее требование диспетчера (подтверждение).</summary>
+public sealed record QuickAction(string Label, ICommand Command, bool IsPrimary = false);

@@ -30,11 +30,13 @@ public sealed class SimulatedGroundServices : IGroundServicesProvider
     public IReadOnlyList<GroundServiceStatus> Statuses =>
         Enum.GetValues<GroundService>().Select(Status).ToList();
 
+    private bool CanRequest(GroundService service) =>
+        _services[service].State != GroundServiceState.InProgress
+        && !(Opposite(service) is { } other && _services[other].State == GroundServiceState.InProgress);
+
     public bool Request(GroundService service)
     {
-        if (_services[service].State == GroundServiceState.InProgress)
-            return false;
-        if (Opposite(service) is { } other && _services[other].State == GroundServiceState.InProgress)
+        if (!CanRequest(service))
             return false;
 
         _services[service] = (GroundServiceState.InProgress, TimeSpan.Zero);
@@ -75,7 +77,7 @@ public sealed class SimulatedGroundServices : IGroundServicesProvider
             GroundServiceState.InProgress => Math.Min(1.0, spent.TotalSeconds / _durations[service].TotalSeconds),
             _ => 0.0,
         };
-        return new GroundServiceStatus(service, state, progress);
+        return new GroundServiceStatus(service, state, progress, CanRequest(service));
     }
 
     private static GroundService? Opposite(GroundService service) => service switch

@@ -17,6 +17,22 @@ public class SimulatedGroundServicesTests
     private static GroundServiceStatus Get(SimulatedGroundServices s, GroundService g) => s.Statuses.Single(x => x.Service == g);
 
     [Fact]
+    public void Status_says_whether_a_service_can_be_requested()
+    {
+        var g = Make();
+        Assert.True(g.Statuses.All(s => s.CanRequest));
+
+        g.Request(GroundService.Boarding);
+        Assert.False(Get(g, GroundService.Boarding).CanRequest);
+        Assert.False(Get(g, GroundService.Deboarding).CanRequest);
+        Assert.True(Get(g, GroundService.Refuel).CanRequest);
+
+        g.Advance(TimeSpan.FromSeconds(20));
+        Assert.True(Get(g, GroundService.Boarding).CanRequest);
+        Assert.True(Get(g, GroundService.Deboarding).CanRequest);
+    }
+
+    [Fact]
     public void All_services_start_idle()
     {
         Assert.True(Make().Statuses.All(s => s.State == GroundServiceState.Idle && s.Progress == 0));

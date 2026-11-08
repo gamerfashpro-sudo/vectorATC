@@ -135,4 +135,6 @@
   <data name="Plan.NotFound" xml:space="preserve"><value>Plan not found. Check the ID or username, and that you have generated a plan.</value></data>
   <data name="Plan.Network" xml:space="preserve"><value>No connection to SimBrief. Try again later.</value></data>
   <data name="Plan.BadResponse" xml:space="preserve"><value>SimBrief returned data the app could not read.</value></data>
+  <data name="Reply.ReadbackTaxi" xml:space="preserve"><value>Taxi to holding point runway {runway} via {route}, {callsign}</value></data>
+  <data name="Reply.ReadbackTaxiUs" xml:space="preserve"><value>Taxi to runway {runway} via {route}, {callsign}</value></data>
 </root>

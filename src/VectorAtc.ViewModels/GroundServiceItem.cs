@@ -9,13 +9,13 @@ public sealed class GroundServiceItem : ObservableObject
     private string _name = "";
     private string _stateText = "";
     private double _progressPercent;
-    private GroundServiceState _state;
+    private bool _canRequest = true;
     private readonly RelayCommand _request;
 
     public GroundServiceItem(GroundService service, Action<GroundService> request)
     {
         Service = service;
-        _request = new RelayCommand(_ => request(service), _ => _state != GroundServiceState.InProgress);
+        _request = new RelayCommand(_ => request(service), _ => _canRequest);
     }
 
     public GroundService Service { get; }
@@ -30,7 +30,7 @@ public sealed class GroundServiceItem : ObservableObject
 
     public void Update(GroundServiceStatus status, string name, string stateText)
     {
-        _state = status.State;
+        _canRequest = status.CanRequest;
         Name = name;
         StateText = stateText;
         ProgressPercent = Math.Round(status.Progress * 100);

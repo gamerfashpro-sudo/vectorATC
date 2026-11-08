@@ -12,4 +12,8 @@ public sealed record AirportInfo(
     IReadOnlyList<string> TaxiRoute,
     GeoPoint HoldPoint,
     double HoldRadiusMeters,
-    int TowerFrequencyKhz);
+    int TowerFrequencyKhz)
+{
+    /// <summary>Маршрут руления для передачи по радио: «Alpha, Bravo».</summary>
+    public string SpokenTaxiRoute => string.Join(", ", TaxiRoute.Select(Parsing.Vocabulary.LetterName));
+}
