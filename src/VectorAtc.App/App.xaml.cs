@@ -47,7 +47,5 @@ public partial class VectorApplication : Application
             simBrief: new VectorAtc.Core.FlightPlan.HttpSimBriefClient());
 
         new MainWindow { DataContext = viewModel }.Show();
-        if (viewModel.LoadPlanCommand.CanExecute(null))
-            viewModel.LoadPlanCommand.Execute(null);
     }
 }
