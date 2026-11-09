@@ -27,7 +27,7 @@ public sealed class ClipLibrary
         var manifest = Load(culture, role);
         if (manifest is null)
             return null;
-        var words = Words(text);
+        var words = Words(culture.TwoLetterISOLanguageName == "ru" ? RussianSpokenForm.Normalize(text) : text);
         if (words.Count == 0)
             return null;
 
