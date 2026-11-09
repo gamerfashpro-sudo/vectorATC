@@ -137,4 +137,11 @@
   <data name="Plan.BadResponse" xml:space="preserve"><value>SimBrief returned data the app could not read.</value></data>
   <data name="Reply.ReadbackTaxi" xml:space="preserve"><value>Taxi to holding point runway {runway} via {route}, {callsign}</value></data>
   <data name="Reply.ReadbackTaxiUs" xml:space="preserve"><value>Taxi to runway {runway} via {route}, {callsign}</value></data>
+  <data name="Diag.Searched" xml:space="preserve"><value>Searched</value></data>
+  <data name="Ui.StripAircraft" xml:space="preserve"><value>Aircraft</value></data>
+  <data name="Ui.StripRoute" xml:space="preserve"><value>Route</value></data>
+  <data name="Ui.StartSubtitle" xml:space="preserve"><value>Enter your SimBrief ID or username to load your flight plan</value></data>
+  <data name="Ui.StartLoad" xml:space="preserve"><value>Load plan and start</value></data>
+  <data name="Ui.StartSkip" xml:space="preserve"><value>Skip, start without a plan</value></data>
+  <data name="Ui.StartHint" xml:space="preserve"><value>The ID is the number in your SimBrief account settings. The plan is requested only when you press the button.</value></data>
 </root>

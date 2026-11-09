@@ -45,6 +45,7 @@ public sealed class MainViewModel : ObservableObject
     private string _simBriefId = "";
     private string _planStatusKey = "";
     private string _planSummary = "";
+    private FlightPlanInfo? _plan;
     private bool _planLoading;
     private RelayCommand? _loadPlanCommand;
     private IReadOnlyList<DiagnosticsItem> _diagnosticsItems = Array.Empty<DiagnosticsItem>();
@@ -404,6 +405,10 @@ public sealed class MainViewModel : ObservableObject
     public string LabelPlan => _loc["Ui.PlanCaption"];
     public string LabelPlanId => _loc["Ui.PlanId"];
     public string LabelPlanLoad => _loc["Ui.PlanLoad"];
+    public string LabelStartSubtitle => _loc["Ui.StartSubtitle"];
+    public string LabelStartLoad => _loc["Ui.StartLoad"];
+    public string LabelStartSkip => _loc["Ui.StartSkip"];
+    public string LabelStartHint => _loc["Ui.StartHint"];
 
     /// <summary>ID или имя пользователя SimBrief.</summary>
     public string SimBriefId
@@ -428,6 +433,31 @@ public sealed class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(PlanStatus));
     }
 
+    public bool HasPlan => _plan is not null;
+
+    /// <summary>Тип самолёта и регистрация из плана для верхней полосы; «—», если плана нет.</summary>
+    public string PlanAircraftText => _plan is null || string.IsNullOrWhiteSpace(_plan.AircraftIcao)
+        ? "—"
+        : _plan.AircraftIcao + (string.IsNullOrWhiteSpace(_plan.Registration) ? "" : $" · {_plan.Registration}");
+
+    /// <summary>Маршрут «UUEE → ULLI» из плана; «—», если плана нет.</summary>
+    public string PlanRouteText => _plan is null || (_plan.OriginIcao.Length == 0 && _plan.DestinationIcao.Length == 0)
+        ? "—"
+        : $"{(_plan.OriginIcao.Length == 0 ? "?" : _plan.OriginIcao)} → {(_plan.DestinationIcao.Length == 0 ? "?" : _plan.DestinationIcao)}";
+
+    private void RaisePlanChanged()
+    {
+        OnPropertyChanged(nameof(HasPlan));
+        OnPropertyChanged(nameof(PlanAircraftText));
+        OnPropertyChanged(nameof(PlanRouteText));
+    }
+
+    /// <summary>Станция, с которой сейчас работает пилот: аэродром и фаза («UUWW Ground»).</summary>
+    public string StationText => $"{_engine.Airport.Icao} {PhaseText}";
+
+    public string LabelStripAircraft => _loc["Ui.StripAircraft"];
+    public string LabelStripRoute => _loc["Ui.StripRoute"];
+
     public string PlanSummary
     {
         get => _planSummary;
@@ -451,7 +481,9 @@ public sealed class MainViewModel : ObservableObject
             var result = await _simBrief.FetchLatestAsync(_simBriefId, cancellationToken);
             if (result.Plan is { } plan)
             {
+                _plan = plan;
                 PlanSummary = BuildPlanSummary(plan);
+                RaisePlanChanged();
                 SetPlanStatus("Plan.Loaded");
                 if (!string.IsNullOrWhiteSpace(plan.Callsign))
                     Callsign = plan.Callsign;
@@ -795,6 +827,7 @@ public sealed class MainViewModel : ObservableObject
     private void RefreshFlight()
     {
         OnPropertyChanged(nameof(PhaseText));
+        OnPropertyChanged(nameof(StationText));
         OnPropertyChanged(nameof(StateText));
         if (QuickKey() != _quickKey)
             RebuildQuickActions();

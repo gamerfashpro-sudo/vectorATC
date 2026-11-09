@@ -11,13 +11,13 @@ namespace VectorAtc.Tests;
 /// </summary>
 public class XamlBindingTests
 {
-    private static string Xaml()
+    private static string Xaml(string file = "MainWindow.xaml")
     {
         var dir = new DirectoryInfo(Environment.GetEnvironmentVariable("VECTORATC_ROOT") ?? AppContext.BaseDirectory);
         while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "VectorAtc.sln")))
             dir = dir.Parent;
         Assert.NotNull(dir);
-        return File.ReadAllText(Path.Combine(dir!.FullName, "src", "VectorAtc.App", "MainWindow.xaml"));
+        return File.ReadAllText(Path.Combine(dir!.FullName, "src", "VectorAtc.App", file));
     }
 
     [Fact]
@@ -40,5 +40,29 @@ public class XamlBindingTests
             Assert.NotNull(property);
             Assert.True(property!.CanWrite && property.SetMethod!.IsPublic);
         }
+    }
+
+    [Fact]
+    public void Every_binding_in_the_main_window_names_a_real_property() => CheckBindings("MainWindow.xaml");
+
+    [Fact]
+    public void Every_binding_in_the_start_window_names_a_real_property() => CheckBindings("StartWindow.xaml");
+
+    private static void CheckBindings(string file)
+    {
+        var known = typeof(MainViewModel).Assembly.GetTypes()
+            .Concat(typeof(VectorAtc.Core.Diagnostics.DiagnosticsItem).Assembly.GetTypes())
+            .SelectMany(t => t.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            .Select(p => p.Name)
+            .ToHashSet();
+
+        var used = Regex.Matches(Xaml(file), @"\{Binding\s+(?:Path=)?([A-Za-z_][\w.]*)(?=[,}\s])")
+            .Select(m => m.Groups[1].Value.Split('.').Last())
+            .Distinct()
+            .ToList();
+
+        Assert.True(used.Count > 3);
+        var missing = used.Where(n => !known.Contains(n)).ToList();
+        Assert.True(missing.Count == 0, "Unknown bindings: " + string.Join(", ", missing));
     }
 }

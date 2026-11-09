@@ -65,8 +65,8 @@ public class DiagnosticsTests
         var lib = Find(items, "SimConnect.dll");
         Assert.Equal(DiagnosticsLevel.Ok, lib.Level);
         Assert.Equal("found: b/SimConnect.dll", lib.Value);
-        Assert.Contains(items, i => i.Label == "   exists" && i.Value == "b/SimConnect.dll");
-        Assert.Contains(items, i => i.Label == "   missing" && i.Value == "a/SimConnect.dll");
+        Assert.Contains(items, i => i.Label == "Searched" && i.Value == "b/SimConnect.dll (exists)");
+        Assert.Contains(items, i => i.Label == "Searched" && i.Value == "a/SimConnect.dll (missing)");
     }
 
     [Fact]

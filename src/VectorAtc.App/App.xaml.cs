@@ -74,7 +74,20 @@ public partial class VectorApplication : Application
             settings: settingsStore,
             simBrief: new VectorAtc.Core.FlightPlan.HttpSimBriefClient());
 
-        new MainWindow { DataContext = viewModel }.Show();
+        // Пока стартовое окно закрыто, а главное ещё не создано, приложение не должно завершаться само.
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        var start = new StartWindow { DataContext = viewModel };
+        if (start.ShowDialog() is null)
+        {
+            StartupLog.Write("стартовое окно закрыто без выбора");
+            Shutdown();
+            return;
+        }
+
+        var main = new MainWindow { DataContext = viewModel };
+        MainWindow = main;
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
+        main.Show();
         StartupLog.Write("окно показано");
     }
 }

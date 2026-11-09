@@ -51,7 +51,7 @@ public sealed class DiagnosticsBuilder
             ? new DiagnosticsItem(_loc["Diag.Library"], string.Format(CultureInfo.InvariantCulture, _loc["Diag.LibraryFound"], found[0]), DiagnosticsLevel.Ok)
             : new DiagnosticsItem(_loc["Diag.Library"], _loc["Diag.LibraryMissing"], isDemo ? DiagnosticsLevel.Info : DiagnosticsLevel.Warn));
         foreach (var path in paths)
-            items.Add(new DiagnosticsItem("   " + _loc[_fileExists(path) ? "Diag.Exists" : "Diag.NotExists"], path, DiagnosticsLevel.Info));
+            items.Add(new DiagnosticsItem(_loc["Diag.Searched"], $"{path} ({_loc[_fileExists(path) ? "Diag.Exists" : "Diag.NotExists"]})", DiagnosticsLevel.Info));
 
         items.Add(new DiagnosticsItem(_loc["Diag.Connection"], _loc["Diag.State." + state],
             state switch { SimConnectionState.Connected => DiagnosticsLevel.Ok, SimConnectionState.Connecting => DiagnosticsLevel.Warn, _ => DiagnosticsLevel.Info }));

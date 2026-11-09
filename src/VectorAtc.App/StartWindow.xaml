@@ -1,0 +1,45 @@
+<Window x:Class="VectorAtc.App.StartWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding Title}"
+        Width="520" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource WindowBg}"
+        Foreground="{StaticResource TextBrush}"
+        FontFamily="Segoe UI" FontSize="13">
+    <Border Style="{StaticResource Card}" Margin="22" Padding="34,30">
+        <StackPanel>
+            <Border Width="64" Height="64" CornerRadius="18" HorizontalAlignment="Center" Margin="0,0,0,14">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#4FD1C5" Offset="0"/>
+                        <GradientStop Color="#5B8CFF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <TextBlock Text="&#x2708;" FontFamily="Segoe UI Symbol" FontSize="30" Foreground="White"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding LabelStartSubtitle}" Foreground="{StaticResource Muted}" TextWrapping="Wrap"
+                       TextAlignment="Center" Margin="0,6,0,22"/>
+
+            <TextBlock Text="{Binding LabelPlanId}" Style="{StaticResource Caption}"/>
+            <TextBox x:Name="IdBox" Text="{Binding SimBriefId, UpdateSourceTrigger=PropertyChanged}"
+                     FontFamily="Consolas" FontSize="16" Margin="0,0,0,14">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Return" Command="{Binding LoadPlanCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
+
+            <Button Style="{StaticResource PrimaryButton}" Content="{Binding LabelStartLoad}"
+                    Command="{Binding LoadPlanCommand}" HorizontalAlignment="Stretch" Padding="0,12" Margin="0,0,0,8"/>
+            <Button x:Name="SkipButton" Content="{Binding LabelStartSkip}" HorizontalAlignment="Stretch" Padding="0,10"
+                    Margin="0,0,0,12"/>
+
+            <TextBlock Text="{Binding PlanStatus}" FontSize="12" Foreground="{StaticResource Warn}"
+                       TextWrapping="Wrap" TextAlignment="Center" MinHeight="18"/>
+            <TextBlock Text="{Binding LabelStartHint}" FontSize="11.5" Foreground="{StaticResource Muted}"
+                       TextWrapping="Wrap" TextAlignment="Center" Margin="0,8,0,0"/>
+        </StackPanel>
+    </Border>
+</Window>

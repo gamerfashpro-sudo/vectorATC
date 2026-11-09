@@ -137,4 +137,11 @@
   <data name="Plan.BadResponse" xml:space="preserve"><value>SimBrief вернул данные, которые приложение не смогло прочитать.</value></data>
   <data name="Reply.ReadbackTaxi" xml:space="preserve"><value>Рулим на предварительный старт полосы {runway} по {route}, {callsign}</value></data>
   <data name="Reply.ReadbackTaxiUs" xml:space="preserve"><value>Рулим на полосу {runway} по {route}, {callsign}</value></data>
+  <data name="Diag.Searched" xml:space="preserve"><value>Искали</value></data>
+  <data name="Ui.StripAircraft" xml:space="preserve"><value>Самолёт</value></data>
+  <data name="Ui.StripRoute" xml:space="preserve"><value>Маршрут</value></data>
+  <data name="Ui.StartSubtitle" xml:space="preserve"><value>Введите ID или имя пользователя SimBrief, чтобы загрузить план полёта</value></data>
+  <data name="Ui.StartLoad" xml:space="preserve"><value>Загрузить план и начать</value></data>
+  <data name="Ui.StartSkip" xml:space="preserve"><value>Пропустить, начать без плана</value></data>
+  <data name="Ui.StartHint" xml:space="preserve"><value>ID — число в настройках аккаунта SimBrief. План запрашивается только по нажатию кнопки.</value></data>
 </root>

@@ -272,3 +272,37 @@ public class SimBriefTests
         Assert.False(vm.IsPlanVisible);
     }
 }
+
+public class PlanStripTests
+{
+    [Fact]
+    public async Task Strip_texts_are_dashes_without_a_plan_and_filled_after_loading()
+    {
+        var loc = new LocalizationService();
+        var log = new ExchangeLog();
+        var engine = new ControllerEngine(
+            new PhraseBook(), MockScenarios.TestAirport,
+            PhraseStyle.Icao, loc.Culture, log);
+        var client = new StubClient();
+        var vm = new MainViewModel(loc, engine, log, new MockSimDataSource(),
+            null, null, null, null, null, null, null, null, null, client);
+
+        Assert.False(vm.HasPlan);
+        Assert.Equal("—", vm.PlanAircraftText);
+        Assert.Equal("—", vm.PlanRouteText);
+        Assert.Equal("TEST Ground", vm.StationText);
+
+        vm.SimBriefId = "1";
+        await vm.LoadFlightPlanAsync();
+        Assert.True(vm.HasPlan);
+        Assert.Equal("A320 · VQ-BAA", vm.PlanAircraftText);
+        Assert.Equal("UUEE → ULLI", vm.PlanRouteText);
+    }
+
+    private sealed class StubClient : ISimBriefClient
+    {
+        public Task<FlightPlanResult> FetchLatestAsync(string idOrUsername, CancellationToken cancellationToken = default) =>
+            Task.FromResult(FlightPlanResult.Ok(new FlightPlanInfo(
+                "AFL1234", "AFL", "1234", "UUEE", "24C", "ULLI", "10R", "A320", "VQ-BAA", "", 142)));
+    }
+}
