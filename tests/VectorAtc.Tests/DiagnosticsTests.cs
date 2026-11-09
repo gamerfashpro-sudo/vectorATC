@@ -141,3 +141,17 @@ public class DiagnosticsTests
         Assert.Equal("[OK] A: 1" + Environment.NewLine + "[FAIL] B: 2", text);
     }
 }
+
+public class SimConnectLocatorDriveTests
+{
+    [Fact]
+    public void Default_sdk_folder_is_probed_on_every_given_drive_after_the_other_places()
+    {
+        var list = SimConnectLocator.Candidates("exe", "base", null, null, new[] { "C:/", "D:/" });
+        Assert.Equal(4, list.Count);
+        Assert.EndsWith("SimConnect.dll", list[0]);
+        Assert.Contains("MSFS 2024 SDK", list[2]);
+        Assert.StartsWith("C:", list[2]);
+        Assert.StartsWith("D:", list[3]);
+    }
+}
