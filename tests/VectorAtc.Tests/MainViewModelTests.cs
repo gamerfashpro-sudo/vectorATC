@@ -125,7 +125,7 @@ public class MainViewModelTests
     {
         var f = new Fixture();
         Assert.Equal(new[] { "Request pushback", "Request taxi", "Radio check" }, f.Vm.QuickActions.Select(a => a.Label).ToArray());
-        Assert.False(f.Vm.QuickActions.Any(a => a.IsPrimary));
+        Assert.DoesNotContain(f.Vm.QuickActions, a => a.IsPrimary);
 
         f.Vm.QuickActions.Single(a => a.Label == "Request pushback").Command.Execute(null);
         Assert.Equal(new[] { "Request taxi", "Radio check" }, f.Vm.QuickActions.Select(a => a.Label).ToArray());
@@ -135,11 +135,11 @@ public class MainViewModelTests
         Assert.Equal("Taxi to holding point runway 27 via Alpha, Bravo, N172SP", primary.Label);
         Assert.Equal(f.Vm.QuickActions[0], primary);
         Assert.Contains(f.Vm.QuickActions, a => a.Label == "Say again");
-        Assert.False(f.Vm.QuickActions.Any(a => a.Label == "Request taxi"));
+        Assert.DoesNotContain(f.Vm.QuickActions, a => a.Label == "Request taxi");
 
         primary.Command.Execute(null);
         Assert.Equal("Taxiing", f.Vm.StateText);
-        Assert.False(f.Vm.QuickActions.Any(a => a.IsPrimary));
+        Assert.DoesNotContain(f.Vm.QuickActions, a => a.IsPrimary);
     }
 
     [Fact]
