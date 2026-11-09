@@ -144,4 +144,7 @@
   <data name="Ui.StartLoad" xml:space="preserve"><value>Загрузить план и начать</value></data>
   <data name="Ui.StartSkip" xml:space="preserve"><value>Пропустить, начать без плана</value></data>
   <data name="Ui.StartHint" xml:space="preserve"><value>ID — число в настройках аккаунта SimBrief. План запрашивается только по нажатию кнопки.</value></data>
+  <data name="Ground.NeedService" xml:space="preserve"><value>Услуги появятся, когда будет подключена наземная служба симулятора. Пока шкалы работают только в демо-режиме как имитация.</value></data>
+  <data name="Ui.AutoReadbackOn" xml:space="preserve"><value>Авто-подтверждение: вкл</value></data>
+  <data name="Ui.AutoReadbackOff" xml:space="preserve"><value>Авто-подтверждение: выкл</value></data>
 </root>

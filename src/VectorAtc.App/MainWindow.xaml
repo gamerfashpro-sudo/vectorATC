@@ -81,6 +81,8 @@
                             MinWidth="48" Margin="0,0,8,0"/>
                     <Button Content="{Binding StyleButtonText}" Command="{Binding ToggleStyleCommand}"
                             MinWidth="48" Margin="0,0,8,0"/>
+                    <Button Content="{Binding AutoReadbackButtonText}" Command="{Binding ToggleAutoReadbackCommand}"
+                            Margin="0,0,8,0"/>
                     <Button Content="{Binding VoiceButtonText}" Command="{Binding ToggleVoiceCommand}" Margin="0"
                             Visibility="{Binding IsVoiceVisible, Converter={StaticResource BoolToVisibility}}"/>
                 </StackPanel>
@@ -89,7 +91,7 @@
 
         <Grid Grid.Row="1">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="92"/>
+            <ColumnDefinition Width="100"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="340"/>
         </Grid.ColumnDefinitions>
@@ -111,7 +113,7 @@
                     </Button.Style>
                     <StackPanel>
                         <Path Style="{StaticResource RailIcon}" Data="M7.5,8.5 A5.5,5.5 0 0 0 7.5,15.5 M16.5,8.5 A5.5,5.5 0 0 1 16.5,15.5 M4.5,5.5 A9.5,9.5 0 0 0 4.5,18.5 M19.5,5.5 A9.5,9.5 0 0 1 19.5,18.5 M12,10.5 A1.5,1.5 0 1 0 12.01,10.5"/>
-                        <TextBlock Text="{Binding LabelTabRadio}" FontSize="11" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding LabelTabRadio}" FontSize="10" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Command="{Binding ShowTrafficCommand}" HorizontalAlignment="Stretch">
@@ -127,7 +129,7 @@
                     </Button.Style>
                     <StackPanel>
                         <Path Style="{StaticResource RailIcon}" Data="M12,3 L14,10 L21,13 L21,15 L14,13.5 L13,19 L15.5,20.5 L15.5,22 L12,21 L8.5,22 L8.5,20.5 L11,19 L10,13.5 L3,15 L3,13 L10,10 Z"/>
-                        <TextBlock Text="{Binding LabelTabTraffic}" FontSize="11" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding LabelTabTraffic}" FontSize="10" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Command="{Binding ShowMapCommand}" HorizontalAlignment="Stretch">
@@ -143,7 +145,7 @@
                     </Button.Style>
                     <StackPanel>
                         <Path Style="{StaticResource RailIcon}" Data="M12,21 C12,21 5,14.5 5,9.5 A7,7 0 0 1 19,9.5 C19,14.5 12,21 12,21 Z M12,7.5 A2,2 0 1 0 12.01,7.5"/>
-                        <TextBlock Text="{Binding LabelTabMap}" FontSize="11" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding LabelTabMap}" FontSize="10" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Command="{Binding ShowDiagCommand}" HorizontalAlignment="Stretch">
@@ -159,7 +161,7 @@
                     </Button.Style>
                     <StackPanel>
                         <Path Style="{StaticResource RailIcon}" Data="M2,12 L7,12 L9.5,5 L13.5,19 L16,12 L22,12"/>
-                        <TextBlock Text="{Binding LabelTabDiag}" FontSize="11" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding LabelTabDiag}" FontSize="10" Margin="0,4,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -538,7 +540,11 @@
                     Visibility="{Binding IsGroundVisible, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel>
                     <TextBlock Text="{Binding LabelGround}" Style="{StaticResource Caption}"/>
-                    <ItemsControl ItemsSource="{Binding GroundServices}">
+                    <TextBlock Text="{Binding GroundNote}" FontSize="12" Foreground="{StaticResource Muted}"
+                               TextWrapping="Wrap" LineHeight="18"
+                               Visibility="{Binding IsGroundNoteVisible, Converter={StaticResource BoolToVisibility}}"/>
+                    <ItemsControl ItemsSource="{Binding GroundServices}"
+                                  Visibility="{Binding IsGroundListVisible, Converter={StaticResource BoolToVisibility}}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid Margin="0,6,0,8">

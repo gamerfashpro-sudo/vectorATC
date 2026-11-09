@@ -67,6 +67,10 @@ public sealed class MainViewModel : ObservableObject
     private string _inputText = "";
     private IReadOnlyList<QuickAction> _quickActions = Array.Empty<QuickAction>();
     private string _quickKey = "";
+    private bool _autoReadback;
+    private double? _autoReadbackDue;
+    private bool _autoReadbackTried;
+    private const double AutoReadbackDelaySeconds = 1.5;
 
     public MainViewModel(
         ILocalizationService loc, ControllerEngine engine, ExchangeLog log, ISimDataSource sim,
@@ -140,6 +144,13 @@ public sealed class MainViewModel : ObservableObject
     public ObservableCollection<GroundServiceItem> GroundServices { get; } = new();
 
     public bool IsGroundVisible => _ground is not null;
+
+    /// <summary>Шкалы услуг показываются только в демо-режиме: это имитация. С реальным симулятором их заменяет пометка.</summary>
+    public bool IsGroundListVisible => _ground is not null && IsDemo;
+
+    public bool IsGroundNoteVisible => _ground is not null && !IsDemo;
+
+    public string GroundNote => _loc["Ground.NeedService"];
 
     public bool IsTabsVisible => true;
 
@@ -297,12 +308,65 @@ public sealed class MainViewModel : ObservableObject
     /// <summary>Один шаг времени для всего, что движется само: услуги и трафик (вызывается таймером окна).</summary>
     public void Tick(TimeSpan elapsed)
     {
+        AdvanceAutoReadback(elapsed);
         AdvanceGround(elapsed);
         _traffic?.Advance(elapsed);
         RefreshTraffic();
         RefreshMap();
         RefreshDiagnostics();
     }
+
+    /// <summary>
+    /// Авто-подтверждение: после разрешения на руление через короткую паузу отправляется верное повторение. Один раз на
+    /// разрешение: если диспетчер его не принял, повторять автоматически бесконечно не нужно.
+    /// </summary>
+    private void AdvanceAutoReadback(TimeSpan elapsed)
+    {
+        if (_autoReadbackDue is not { } due) return;
+        due -= elapsed.TotalSeconds;
+        if (due > 0)
+        {
+            _autoReadbackDue = due;
+            return;
+        }
+
+        _autoReadbackDue = null;
+        if (_autoReadback && _engine.State == FlightState.TaxiClearanceIssued)
+            SendText(BuildTaxiReadback());
+    }
+
+    private void UpdateAutoReadbackSchedule()
+    {
+        if (_engine.State != FlightState.TaxiClearanceIssued)
+        {
+            _autoReadbackDue = null;
+            _autoReadbackTried = false;
+            return;
+        }
+
+        if (_autoReadback && !_autoReadbackTried && _autoReadbackDue is null)
+        {
+            _autoReadbackTried = true;
+            _autoReadbackDue = AutoReadbackDelaySeconds;
+        }
+    }
+
+    public bool AutoReadback
+    {
+        get => _autoReadback;
+        set
+        {
+            if (!SetProperty(ref _autoReadback, value)) return;
+            OnPropertyChanged(nameof(AutoReadbackButtonText));
+            if (!value) _autoReadbackDue = null;
+            UpdateAutoReadbackSchedule();
+            SaveSettings();
+        }
+    }
+
+    public string AutoReadbackButtonText => _loc[_autoReadback ? "Ui.AutoReadbackOn" : "Ui.AutoReadbackOff"];
+
+    public ICommand ToggleAutoReadbackCommand => new RelayCommand(_ => AutoReadback = !AutoReadback);
 
     private void RefreshTraffic()
     {
@@ -334,14 +398,14 @@ public sealed class MainViewModel : ObservableObject
     /// <summary>Сообщает, сколько времени прошло, чтобы услуги двигались (вызывается таймером окна).</summary>
     public void AdvanceGround(TimeSpan elapsed)
     {
-        if (_ground is null) return;
+        if (_ground is null || !IsDemo) return;
         _ground.Advance(elapsed);
         RefreshGround();
     }
 
     private void RequestGround(GroundService service)
     {
-        if (_ground is null) return;
+        if (_ground is null || !IsDemo) return;
         var a = _lastAircraft;
         if (a is not null && (!a.OnGround || a.GroundSpeedKnots >= 1))
         {
@@ -541,6 +605,7 @@ public sealed class MainViewModel : ObservableObject
             if (!string.IsNullOrWhiteSpace(s.Callsign)) _callsign = s.Callsign.Trim();
             if (!string.IsNullOrWhiteSpace(s.SimBriefId)) _simBriefId = s.SimBriefId.Trim();
             if (s.VoiceEnabled is { } voice) _voiceEnabled = voice;
+            if (s.AutoReadback is { } auto) _autoReadback = auto;
             if (s.MapRangeNm is { } range)
             {
                 var best = 0;
@@ -559,7 +624,7 @@ public sealed class MainViewModel : ObservableObject
     {
         if (_settings is null || _applyingSettings) return;
         _settings.Save(new UserSettings(
-            _loc.Culture.TwoLetterISOLanguageName, _engine.Style.ToString(), _callsign, _voiceEnabled, MapRanges[_mapRangeIndex], _simBriefId));
+            _loc.Culture.TwoLetterISOLanguageName, _engine.Style.ToString(), _callsign, _voiceEnabled, MapRanges[_mapRangeIndex], _simBriefId, _autoReadback));
     }
 
     public string InputText
@@ -829,6 +894,7 @@ public sealed class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(PhaseText));
         OnPropertyChanged(nameof(StationText));
         OnPropertyChanged(nameof(StateText));
+        UpdateAutoReadbackSchedule();
         if (QuickKey() != _quickKey)
             RebuildQuickActions();
     }

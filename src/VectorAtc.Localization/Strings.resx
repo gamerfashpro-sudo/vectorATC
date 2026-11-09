@@ -144,4 +144,7 @@
   <data name="Ui.StartLoad" xml:space="preserve"><value>Load plan and start</value></data>
   <data name="Ui.StartSkip" xml:space="preserve"><value>Skip, start without a plan</value></data>
   <data name="Ui.StartHint" xml:space="preserve"><value>The ID is the number in your SimBrief account settings. The plan is requested only when you press the button.</value></data>
+  <data name="Ground.NeedService" xml:space="preserve"><value>Services will be available once the simulator ground service is connected. Until then the progress bars work only in demo mode, as a simulation.</value></data>
+  <data name="Ui.AutoReadbackOn" xml:space="preserve"><value>Auto read-back: on</value></data>
+  <data name="Ui.AutoReadbackOff" xml:space="preserve"><value>Auto read-back: off</value></data>
 </root>

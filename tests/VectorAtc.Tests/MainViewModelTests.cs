@@ -531,8 +531,34 @@ public class MainViewModelTests
             [GroundService.Baggage] = TimeSpan.FromSeconds(10),
             [GroundService.Deboarding] = TimeSpan.FromSeconds(10),
         });
-        var vm = new MainViewModel(loc, engine, log, sim, null, null, null, speech, null, ground);
+        var vm = new MainViewModel(loc, engine, log, sim, () => sim.Advance(), null, null, speech, null, ground);
         return (vm, sim, speech);
+    }
+
+    [Fact]
+    public void Ground_services_are_not_simulated_with_a_real_simulator_source()
+    {
+        var loc = new LocalizationService();
+        var log = new ExchangeLog();
+        var demo = new MockSimDataSource();
+        var real = new MockSimDataSource();
+        var engine = new ControllerEngine(new PhraseBook(), MockScenarios.TestAirport, PhraseStyle.Icao, loc.Culture, log);
+        var ground = new SimulatedGroundServices();
+        var vm = new MainViewModel(loc, engine, log, demo, () => demo.Advance(), () => real, null, null, null, ground);
+
+        Assert.True(vm.IsGroundListVisible);
+        Assert.False(vm.IsGroundNoteVisible);
+
+        vm.ToggleSourceCommand.Execute(null);
+        Assert.False(vm.IsDemo);
+        Assert.False(vm.IsGroundListVisible);
+        Assert.True(vm.IsGroundNoteVisible);
+
+        vm.GroundServices[0].RequestCommand.Execute(null);
+        vm.AdvanceGround(TimeSpan.FromSeconds(30));
+        Assert.Equal("Not ordered", vm.GroundServices[0].StateText);
+        Assert.Empty(vm.Lines);
+        Assert.DoesNotContain("GSX", vm.GroundNote);
     }
 
     [Fact]

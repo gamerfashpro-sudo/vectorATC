@@ -306,3 +306,90 @@ public class PlanStripTests
                 "AFL1234", "AFL", "1234", "UUEE", "24C", "ULLI", "10R", "A320", "VQ-BAA", "", 142)));
     }
 }
+
+public class AutoReadbackTests
+{
+    private static MainViewModel Make(out MemorySettingsStore store, UserSettings? initial = null)
+    {
+        var loc = new LocalizationService();
+        var log = new ExchangeLog();
+        store = new MemorySettingsStore { Stored = initial ?? new UserSettings() };
+        var engine = new ControllerEngine(new PhraseBook(), MockScenarios.TestAirport, PhraseStyle.Icao, loc.Culture, log);
+        return new MainViewModel(loc, engine, log, new MockSimDataSource(), null, null, null, null, null, null, null, null, store);
+    }
+
+    internal sealed class MemorySettingsStore : ISettingsStore
+    {
+        public UserSettings Stored { get; set; } = new();
+        public UserSettings Load() => Stored;
+        public bool Save(UserSettings s) { Stored = s; return true; }
+    }
+
+    private static void RequestTaxi(MainViewModel vm) =>
+        vm.QuickActions.Single(a => a.Label == "Request taxi").Command.Execute(null);
+
+    [Fact]
+    public void When_on_the_readback_is_sent_after_a_pause_and_only_then()
+    {
+        var vm = Make(out _);
+        vm.AutoReadback = true;
+        RequestTaxi(vm);
+        Assert.Equal("Taxi clearance issued", vm.StateText);
+
+        vm.Tick(TimeSpan.FromSeconds(1.0));
+        Assert.Equal("Taxi clearance issued", vm.StateText);
+
+        vm.Tick(TimeSpan.FromSeconds(1.0));
+        Assert.Equal("Taxiing", vm.StateText);
+        Assert.Contains(vm.Lines, l => l.Kind == LogSource.Pilot && l.Text == "Taxi to holding point runway 27 via Alpha, Bravo, N172SP");
+    }
+
+    [Fact]
+    public void When_off_nothing_is_sent_automatically()
+    {
+        var vm = Make(out _);
+        RequestTaxi(vm);
+        vm.Tick(TimeSpan.FromSeconds(10));
+        Assert.Equal("Taxi clearance issued", vm.StateText);
+    }
+
+    [Fact]
+    public void Switching_off_during_the_pause_cancels_it()
+    {
+        var vm = Make(out _);
+        vm.AutoReadback = true;
+        RequestTaxi(vm);
+        vm.AutoReadback = false;
+        vm.Tick(TimeSpan.FromSeconds(10));
+        Assert.Equal("Taxi clearance issued", vm.StateText);
+    }
+
+    [Fact]
+    public void A_rejected_automatic_readback_is_not_repeated_forever()
+    {
+        var vm = Make(out _);
+        vm.AutoReadback = true;
+        vm.Callsign = "UAL123";
+        RequestTaxi(vm);
+        // Позывной в сессии привязан к первому сообщению; подмена после этого делает подтверждение неверным.
+        vm.Callsign = "DLH999";
+        vm.Tick(TimeSpan.FromSeconds(2));
+        var pilotLines = vm.Lines.Count(l => l.Kind == LogSource.Pilot);
+
+        vm.Tick(TimeSpan.FromSeconds(30));
+        vm.Tick(TimeSpan.FromSeconds(30));
+        Assert.Equal(pilotLines, vm.Lines.Count(l => l.Kind == LogSource.Pilot));
+    }
+
+    [Fact]
+    public void The_choice_is_saved_and_restored()
+    {
+        var vm = Make(out var store);
+        vm.ToggleAutoReadbackCommand.Execute(null);
+        Assert.True(store.Stored.AutoReadback == true);
+
+        var restored = Make(out _, new UserSettings(AutoReadback: true));
+        Assert.True(restored.AutoReadback);
+        Assert.Equal("Auto read-back: on", restored.AutoReadbackButtonText);
+    }
+}
