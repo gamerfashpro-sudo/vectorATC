@@ -16,8 +16,8 @@ public sealed class WindowsSpeechOutput : ISpeechOutput, IDisposable
 
     public void Speak(string text, CultureInfo culture, SpeechRole role)
     {
-        if (string.IsNullOrWhiteSpace(text))
-            return;
+        if (string.IsNullOrWhiteSpace(text) || role == SpeechRole.Pilot)
+            return; // ответы игрока читаются только записанными фразами
         var voice = FindVoice(culture, role);
         if (voice is null)
             return;

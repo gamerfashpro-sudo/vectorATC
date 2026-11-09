@@ -17,6 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- записанные фразы голосов: voices/<язык>/<роль>/manifest.json + аудиофайлы; папка может быть пустой -->
+    <Content Include="voices\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\VectorAtc.Core\VectorAtc.Core.csproj" />
     <ProjectReference Include="..\VectorAtc.SimLink\VectorAtc.SimLink.csproj" />
     <ProjectReference Include="..\VectorAtc.Localization\VectorAtc.Localization.csproj" />

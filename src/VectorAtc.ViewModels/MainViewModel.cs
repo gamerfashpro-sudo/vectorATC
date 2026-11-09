@@ -826,12 +826,17 @@ public sealed class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(VoiceButtonText));
     }
 
-    /// <summary>Озвучивает реплики диспетчера и салона; слова пилота и замечания не озвучиваются.</summary>
+    /// <summary>Озвучивает реплики диспетчера, салона и ответы пилота (последние только записанными фразами); замечания не озвучиваются.</summary>
     private void Speak(LogEntry entry)
     {
-        if (_speech is null || !_voiceEnabled || entry.Source is LogSource.Pilot or LogSource.Violation or LogSource.Ground)
+        if (_speech is null || !_voiceEnabled || entry.Source is LogSource.Violation or LogSource.Ground)
             return;
-        var role = entry.Source == LogSource.Cabin ? SpeechRole.Cabin : SpeechRole.Controller;
+        var role = entry.Source switch
+        {
+            LogSource.Cabin => SpeechRole.Cabin,
+            LogSource.Pilot => SpeechRole.Pilot,
+            _ => SpeechRole.Controller
+        };
         _speech.Speak(entry.Text, _loc.Culture, role);
     }
 

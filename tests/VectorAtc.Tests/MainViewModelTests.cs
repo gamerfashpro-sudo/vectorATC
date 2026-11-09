@@ -372,13 +372,15 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public void Controller_reply_is_spoken_but_pilot_line_is_not()
+    public void Pilot_line_and_controller_reply_are_spoken_with_their_own_roles()
     {
         var (vm, speech, _) = SpeechFixture();
         vm.InputText = "N172SP request taxi";
         vm.SendCommand.Execute(null);
 
-        var spoken = Assert.Single(speech.Spoken);
+        Assert.Equal(2, speech.Spoken.Count);
+        Assert.Equal(SpeechRole.Pilot, speech.Spoken[0].Role);
+        var spoken = speech.Spoken[1];
         Assert.Equal(SpeechRole.Controller, spoken.Role);
         Assert.Equal("en", spoken.Lang);
         Assert.Equal("N172SP, taxi to holding point runway 27 via Alpha, Bravo", spoken.Text);

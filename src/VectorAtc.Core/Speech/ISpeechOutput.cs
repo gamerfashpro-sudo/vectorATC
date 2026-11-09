@@ -6,7 +6,9 @@ namespace VectorAtc.Core.Speech;
 public enum SpeechRole
 {
     Controller,
-    Cabin
+    Cabin,
+    /// <summary>Ответы игрока: озвучиваются только записанными фразами, системный голос их не читает.</summary>
+    Pilot
 }
 
 /// <summary>Озвучивание реплик. Реализация работает без сети и без скачиваний.</summary>
