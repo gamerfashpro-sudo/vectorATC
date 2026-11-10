@@ -10,7 +10,7 @@ namespace VectorAtc.App.Speech;
 /// Реплики синтезируются строго по очереди, чтобы порядок речи не нарушался. Если piper.exe или модели нет, реплику
 /// отдаёт запасному озвучиванию (кроме ответов игрока: их запасной голос не читает). Проверено только сборкой.
 /// </summary>
-public sealed class PiperSpeechOutput : ISpeechOutput
+public sealed class PiperSpeechOutput : ISpeechOutput, IVoiceFiles
 {
     private readonly string _folder;
     private readonly ISpeechOutput _fallback;
@@ -24,6 +24,14 @@ public sealed class PiperSpeechOutput : ISpeechOutput
         _folder = piperFolder;
         _fallback = fallback;
     }
+
+    public IReadOnlyList<string> VoiceFiles => new[]
+    {
+        Exe,
+        Path.Combine(Voices, PiperVoices.ModelName(SpeechRole.Controller) + ".onnx"),
+        Path.Combine(Voices, PiperVoices.ModelName(SpeechRole.Cabin) + ".onnx"),
+        Path.Combine(Voices, PiperVoices.ModelName(SpeechRole.Pilot) + ".onnx")
+    };
 
     private string Exe => Path.Combine(_folder, "piper.exe");
     private string Voices => Path.Combine(_folder, "voices");

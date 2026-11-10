@@ -4,7 +4,7 @@ using VectorAtc.Core.Speech;
 namespace VectorAtc.App.Speech;
 
 /// <summary>Слушает основным распознавателем (Whisper), если для языка он доступен, иначе запасным (Windows).</summary>
-public sealed class CompositeSpeechInput : ISpeechInput
+public sealed class CompositeSpeechInput : ISpeechInput, IVoiceFiles
 {
     private readonly WhisperSpeechInput _primary;
     private readonly ISpeechInput _fallback;
@@ -25,6 +25,8 @@ public sealed class CompositeSpeechInput : ISpeechInput
             input.Failed += (_, _) => Failed?.Invoke(this, EventArgs.Empty);
         }
     }
+
+    public IReadOnlyList<string> VoiceFiles => _primary.VoiceFiles;
 
     public bool CanListen(CultureInfo culture) => _primary.CanListen(culture) || _fallback.CanListen(culture);
 

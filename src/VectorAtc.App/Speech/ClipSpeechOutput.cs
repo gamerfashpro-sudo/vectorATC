@@ -7,7 +7,7 @@ namespace VectorAtc.App.Speech;
 /// Озвучивание записанными фразами из папки <c>voices</c> (см. <see cref="ClipLibrary"/>). Реплику, которую нельзя собрать
 /// из записей целиком, отдаёт запасному озвучиванию. Код проверен только сборкой, не запуском.
 /// </summary>
-public sealed class ClipSpeechOutput : ISpeechOutput
+public sealed class ClipSpeechOutput : ISpeechOutput, IVoiceFiles
 {
     private readonly ClipLibrary _library;
     private readonly ISpeechOutput _fallback;
@@ -18,6 +18,8 @@ public sealed class ClipSpeechOutput : ISpeechOutput
         _library = new ClipLibrary(voicesFolder);
         _fallback = fallback;
     }
+
+    public IReadOnlyList<string> VoiceFiles => (_fallback as IVoiceFiles)?.VoiceFiles ?? Array.Empty<string>();
 
     public bool CanSpeak(CultureInfo culture) =>
         _library.HasVoice(culture, SpeechRole.Controller) || _fallback.CanSpeak(culture);

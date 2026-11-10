@@ -90,6 +90,10 @@ public sealed class DiagnosticsBuilder
                 items.Add(Flag(_loc["Diag.VoiceIn"] + " " + code, mic.CanListen(c)));
         }
 
+        foreach (var path in ((voice as IVoiceFiles)?.VoiceFiles ?? Array.Empty<string>())
+                     .Concat((mic as IVoiceFiles)?.VoiceFiles ?? Array.Empty<string>()))
+            items.Add(new DiagnosticsItem(_loc["Diag.Searched"], $"{path} ({_loc[_fileExists(path) ? "Diag.Exists" : "Diag.NotExists"]})", DiagnosticsLevel.Info));
+
         return items;
     }
 

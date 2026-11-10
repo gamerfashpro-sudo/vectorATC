@@ -11,7 +11,7 @@ namespace VectorAtc.App.Speech;
 /// <c>%LOCALAPPDATA%\VectorATC\whisper\ggml-small.bin</c> (скачивается скриптом установки). Микрофон пишется, пока кнопка
 /// зажата; после отпускания запись распознаётся целиком. Проверено только сборкой, на настоящем Windows не запускалось.
 /// </summary>
-public sealed class WhisperSpeechInput : ISpeechInput, IDisposable
+public sealed class WhisperSpeechInput : ISpeechInput, IVoiceFiles, IDisposable
 {
     private const int SampleRate = 16000;
     private const string RussianHint =
@@ -31,6 +31,8 @@ public sealed class WhisperSpeechInput : ISpeechInput, IDisposable
     public event EventHandler? Failed;
 
     public WhisperSpeechInput(string modelPath) => _modelPath = modelPath;
+
+    public IReadOnlyList<string> VoiceFiles => new[] { _modelPath };
 
     public bool CanListen(CultureInfo culture) => File.Exists(_modelPath);
 

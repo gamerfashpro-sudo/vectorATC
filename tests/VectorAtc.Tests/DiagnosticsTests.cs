@@ -50,6 +50,27 @@ public class DiagnosticsTests
         public event EventHandler? Failed { add { } remove { } }
     }
 
+    private sealed class FakeVoiceWithFiles : ISpeechInput, IVoiceFiles
+    {
+        public IReadOnlyList<string> VoiceFiles => new[] { "m/ggml-small.bin" };
+        public bool CanListen(CultureInfo culture) => false;
+        public void StartListening(CultureInfo culture) { }
+        public void StopListening() { }
+        public event EventHandler<string>? Recognized { add { } remove { } }
+        public event EventHandler? NotUnderstood { add { } remove { } }
+        public event EventHandler? Failed { add { } remove { } }
+    }
+
+    [Fact]
+    public void Voice_model_files_are_listed_with_their_presence()
+    {
+        var missing = Builder(Array.Empty<string>()).Build(SimConnectionState.Disconnected, false, null, null, new FakeVoiceWithFiles());
+        Assert.Contains(missing, i => i.Value == "m/ggml-small.bin (missing)");
+
+        var present = Builder(new[] { "m/ggml-small.bin" }).Build(SimConnectionState.Disconnected, false, null, null, new FakeVoiceWithFiles());
+        Assert.Contains(present, i => i.Value == "m/ggml-small.bin (exists)");
+    }
+
     private static readonly DateTimeOffset Now = new(2026, 11, 7, 12, 0, 0, TimeSpan.Zero);
 
     private static DiagnosticsBuilder Builder(IEnumerable<string> existing, bool is64 = true) =>
