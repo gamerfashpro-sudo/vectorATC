@@ -32,6 +32,15 @@ foreach ($m in $models) {
     }
 }
 
+# Распознавание речи Whisper (модель small, около 470 МБ; лицензия модели MIT)
+$whisper = Join-Path $root 'whisper'
+New-Item -ItemType Directory -Force -Path $whisper | Out-Null
+$wm = Join-Path $whisper 'ggml-small.bin'
+if (-not (Test-Path $wm)) {
+    Write-Host 'Скачиваю модель распознавания речи (около 470 МБ)...'
+    Invoke-WebRequest -UseBasicParsing -Uri 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin' -OutFile $wm
+}
+
 # пробная фраза: если слышно голос, всё работает
 $test = Join-Path $env:TEMP 'vatc-test.wav'
 'Проверка связи, как слышно?' | & (Join-Path $piper 'piper.exe') --model (Join-Path $voices 'ru_RU-denis-medium.onnx') --output_file $test --quiet

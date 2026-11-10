@@ -68,7 +68,7 @@ public partial class VectorApplication : Application
         var sim = new MockSimDataSource(MockScenarios.ParkedToHoldShort());
         var viewModel = new MainViewModel(
             localization, engine, log, sim, () => sim.Advance(), () => new SimConnectDataSource(), new CabinAnnouncer(), new VectorAtc.App.Speech.ClipSpeechOutput(System.IO.Path.Combine(AppContext.BaseDirectory, "voices"), new VectorAtc.App.Speech.PiperSpeechOutput(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VectorATC", "piper"), new VectorAtc.App.Speech.WindowsSpeechOutput())),
-            new VectorAtc.App.Speech.WindowsSpeechInput(),
+            new VectorAtc.App.Speech.CompositeSpeechInput(new VectorAtc.App.Speech.WhisperSpeechInput(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VectorATC", "whisper", "ggml-small.bin")), new VectorAtc.App.Speech.WindowsSpeechInput()),
             new SimulatedGroundServices(),
             new SimulatedTraffic(MockScenarios.TestAirport.HoldPoint),
             settings: settingsStore,
